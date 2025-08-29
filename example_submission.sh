@@ -144,33 +144,33 @@ deactivate
 END_TIME=$(date +%s)
 echo "Boltz completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 
-# # ==============================================================================
-# # 7. Run AF3
-# # ==============================================================================
-# START_TIME=$(date +%s)
-# echo -e "\nRunning AF3" >> "${LOG_DIR}/log.txt"
+# ==============================================================================
+# 7. Run AF3
+# ==============================================================================
+START_TIME=$(date +%s)
+echo -e "\nRunning AF3" >> "${LOG_DIR}/log.txt"
 
-# source /dtu/projects/RFdiffusion/AF3/3.0.1/miniforge/bin/activate
-# source activate alphafold3.0.1_env
-# cd /dtu/projects/RFdiffusion/AF3/3.0.1/alphafold3
+source /dtu/projects/RFdiffusion/AF3/3.0.1/miniforge/bin/activate
+source activate alphafold3.0.1_env
+cd /dtu/projects/RFdiffusion/AF3/3.0.1/alphafold3
 
-# export PATH=/dtu/projects/RFdiffusion/AF3/3.0.0/hmmer/bin:$PATH
-# #export XLA_FLAGS="--xla_disable_hlo_passes=custom-kernel-fusion-rewriter"
-# python run_alphafold.py \
-# --input_dir="${OUTPUT_DIR}/AF3/input_folder" \
-# --model_dir="${AF3_WEIGHTS}" \
-# --db_dir=/dtu/datasets1/alphafold3 \
-# --run_data_pipeline=False \
-# --num_diffusion_samples=3 \
-# --output_dir="${OUTPUT_DIR}/AF3/outputs"
+export PATH=/dtu/projects/RFdiffusion/AF3/3.0.0/hmmer/bin:$PATH
+#export XLA_FLAGS="--xla_disable_hlo_passes=custom-kernel-fusion-rewriter"
+python run_alphafold.py \
+--input_dir="${OUTPUT_DIR}/AF3/input_folder" \
+--model_dir="${AF3_WEIGHTS}" \
+--db_dir=/dtu/datasets1/alphafold3 \
+--run_data_pipeline=False \
+--num_diffusion_samples=3 \
+--output_dir="${OUTPUT_DIR}/AF3/outputs"
 
-# #--flash_attention_implementation=xla \
-# conda deactivate
-# conda deactivate
+#--flash_attention_implementation=xla \
+conda deactivate
+conda deactivate
 
-# END_TIME=$(date +%s)
-# echo "AF3 completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
-# cd $SCRIPT_DIR
+END_TIME=$(date +%s)
+echo "AF3 completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
+cd $SCRIPT_DIR
 
 # ==============================================================================
 # 7. Extracting confidence metrics and model_0 PDBs
