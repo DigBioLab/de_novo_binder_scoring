@@ -1,54 +1,18 @@
 name: binder_scoring_env
 channels:
-  - https://conda.graylab.jhu.edu
   - conda-forge
-  - defaults
+  - https://conda.graylab.jhu.edu
 dependencies:
-  - _libgcc_mutex=0.1=conda_forge
-  - _openmp_mutex=4.5=2_gnu
-  - bzip2=1.0.8=h4bc722e_7
-  - ca-certificates=2025.8.3=hbd8a1cb_0
-  - ld_impl_linux-64=2.44=h1423503_1
-  - libblas=3.9.0=34_h59b9bed_openblas
-  - libcblas=3.9.0=34_he106b2a_openblas
-  - libexpat=2.7.1=hecca717_0
-  - libffi=3.4.6=h2dba641_1
-  - libgcc=15.1.0=h767d61c_4
-  - libgcc-ng=15.1.0=h69a702a_4
-  - libgfortran=15.1.0=h69a702a_4
-  - libgfortran5=15.1.0=hcea5267_4
-  - libgomp=15.1.0=h767d61c_4
-  - liblapack=3.9.0=34_h7ac8fdf_openblas
-  - liblzma=5.8.1=hb9d3cd8_2
-  - libnsl=2.0.1=hb9d3cd8_1
-  - libopenblas=0.3.30=pthreads_h94d23a6_2
-  - libsqlite=3.50.4=h0c1763c_0
-  - libstdcxx=15.1.0=h8f9b012_4
-  - libuuid=2.38.1=h0b41bf4_0
-  - libxcrypt=4.4.36=hd590300_1
-  - libzlib=1.3.1=hb9d3cd8_2
-  - ncurses=6.5=h2d0b736_3
-  - openssl=3.5.2=h26f9b46_0
-  - pip=25.2=pyh8b19718_0
-  - pyrosetta=2025.33+release.a492b89a9e=py310_0
-  - python=3.10.18=hd6af730_0_cpython
-  - python_abi=3.10=8_cp310
-  - readline=8.2=h8c095d6_2
-  - setuptools=80.9.0=pyhff2d567_0
-  - tk=8.6.13=noxft_hd72426e_102
-  - wheel=0.45.1=pyhd8ed1ab_1
-  - zlib=1.3.1=hb9d3cd8_2
+  - python=3.10
+  - pandas>=2.1
+  - biopython>=1.83
+  - numpy<2.0
+  - scipy
+  - tqdm
+  - pyrosetta
+  - pip
   - pip:
-      - biopython==1.85
-      - colorama==0.4.6
       - dockq==2.1.3
-      - networkx==3.4.2
-      - numpy==1.26.4
-      - pandas==2.3.2
       - parallelbar==2.5
-      - python-dateutil==2.9.0.post0
-      - pytz==2025.2
-      - scipy==1.15.3
-      - six==1.17.0
-      - tqdm==4.67.1
-      - tzdata==2025.2
+
+

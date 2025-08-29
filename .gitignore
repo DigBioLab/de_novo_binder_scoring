@@ -1,0 +1,4 @@
+example_outputs/
+.empty/
+*.err
+*.out
