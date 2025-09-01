@@ -5,7 +5,7 @@
 # Python virtual environment activation script
 CONDA_PATH="/path/to/conda/bin/activate"
 
-OUTPUT_DIR="path/to/example_outputs" #needs to be full path
+OUTPUT_DIR="/path/to/example_outputs" #needs to be full path
 INPUT_PDBS="./example_input/input_pdbs"
 INPUT_CSV="./example_input/input.csv"
 

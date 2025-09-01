@@ -1,11 +1,13 @@
 # de_novo_binder_scoring
 
-This repo contains the scripts and analysis described in:  
+This repository contains the scripts and analysis described in:  
 [**Predicting Experimental Success in De Novo Binder Design: A Meta-Analysis of 3,766 Experimentally Characterised Binders**](https://www.biorxiv.org/content/10.1101/2025.08.14.670059v1)
 
 ---
 
 ## Installation
+
+Clone and set up the environment:
 
 ```bash
 git clone https://github.com/DigBioLab/de_novo_binder_scoring.git
@@ -16,23 +18,74 @@ conda activate binder_scoring_env
 chmod +x ./functions/DAlphaBall.gcc
 ```
 
-> **Note:** PyRosetta is optional but supported. It requires registration/licensing at [pyrosetta.org](https://www.pyrosetta.org/downloads).
+⚠️ **Note**: This repo requires [PyRosetta](https://www.pyrosetta.org/downloads), which requires a license for commercial use.
 
 ---
 
 ## Usage
 
-Process a folder of PDBs into standardized inputs (`run.csv`, MSAs, cleaned PDBs):
+### 1. Process inputs
+
+Convert PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
 
 ```bash
 python process_inputs.py   --input_pdbs ./example_input/input_pdbs   --output_dir ./outputs
 ```
 
-**Logic:**
-- Binder is expected on **chain A** (`A:no_msa` by default).  
-- Targets = chain B or merged non-A chains; chain breaks are split into virtual segments (B, C, D …).  
-- Unique target sequences are grouped (`target_1`, `target_2`, …).  
-- PDBs are renumbered in-place; MSAs must be generated separately (e.g. ColabFold server or local MMseqs2).
+- Binder is expected as **chain A** (`A:no_msa` by default).  
+- Non-A chains are merged into **B** (or split into virtual B, C, D … if chain breaks are detected).  
+- Unique target sequences are deduplicated (`target_1`, `target_2`, …).  
+- Outputs: `run.csv`, `Binder_seq.fasta`, and `unique_msa/`.
+
+---
+
+### 2. Generate MSAs
+
+We used the ColabFold server (MMseqs2) for MSAs. Example (local ColabFold):
+
+```bash
+colabfold_batch "./outputs/unique_msa" "./outputs/unique_msa/msa" --msa-only
+```
+
+---
+
+### 3. Prepare model inputs
+
+Generate input files for structure prediction models (AF3, Boltz-1/2, ColabFold):
+
+```bash
+python generate_model_inputs.py   --csv_file ./outputs/run.csv   --out_dir ./outputs   --models af3 boltz colabfold
+```
+
+---
+
+### 4. Process outputs
+
+#### Extract model metrics
+```bash
+python extract_confidence_metrics.py   --run_csv ./outputs/run.csv   --output_dir ./outputs   --colab_dir ./outputs/ColabFold   --boltz_dir ./outputs/Boltz   --af3_dir ./outputs/AF3   --af2_dir ./outputs/AF2
+```
+
+#### Compute ipSAE scores ([IPSAE](https://github.com/DunbrackLab/IPSAE)):
+```bash
+python run_ipsae_batch.py   --run-csv ./outputs/run.csv   --af3-dir ./outputs/AF3   --boltz-dir ./outputs/Boltz   --colab-dir ./outputs/ColabFold
+```
+
+#### Compute Rosetta metrics ([BindCraft-inspired](https://github.com/martinpacesa/BindCraft)):
+```bash
+python compute_rosetta_metrics.py   --run_csv ./outputs/run.csv   --out_csv ./outputs/rosetta_metrics.csv   --input input=./outputs/input_pdbs   --input af3=./outputs/AF3/pdbs   --input boltz=./outputs/Boltz/pdbs   --input colab=./outputs/ColabFold/pdbs   --input af2=./outputs/AF2/pdbs
+```
+
+#### Compute RMSD (requires at least two sets of PDBs):
+```bash
+python rmsd.py   --folder input:./outputs/input_pdbs   --folder af3:./outputs/AF3/pdbs   --folder af2:./outputs/AF2/pdbs   --folder boltz:./outputs/Boltz/pdbs   --folder colab:./outputs/ColabFold/pdbs   --out-csv ./outputs/rmsd.csv
+```
+
+---
+
+## Example run
+
+A full workflow is provided in **`example_run.sh`**.
 
 ---
 
@@ -42,4 +95,5 @@ If you use this code, please cite:
 
 **Predicting Experimental Success in De Novo Binder Design: A Meta-Analysis of 3,766 Experimentally Characterised Binders**. *bioRxiv* (2025).  
 DOI: [10.1101/2025.08.14.670059v1](https://www.biorxiv.org/content/10.1101/2025.08.14.670059v1)
+
 

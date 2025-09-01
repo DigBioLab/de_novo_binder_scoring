@@ -45,7 +45,7 @@ def parse_args():
     p.add_argument("--run-csv", required=True, help="CSV with a 'binder_id' column; will be overwritten with appended metrics")
 
     # Any subset is allowed; if none given, error
-    p.add_argument("--boltz1-dir", help="Path to BOLTZ1 outputs directory (expects .../boltz_results_fasta_folder)")
+    p.add_argument("--boltz-dir", help="Path to BOLTZ1 outputs directory (expects .../boltz_results_fasta_folder)")
     p.add_argument("--af3-dir", help="Path to AF3 outputs directory (expects .../outputs)")
     p.add_argument("--colab-dir", help="Path to ColabFold root (expects .../ptm_output)")
 
@@ -65,11 +65,11 @@ def parse_args():
 # File indexing (only for provided dirs)
 # -------------------------
 
-def build_file_index(boltz1_dir: Optional[str], af3_dir: Optional[str], colab_dir: Optional[str]):
+def build_file_index(boltz_dir: Optional[str], af3_dir: Optional[str], colab_dir: Optional[str]):
     index: Dict[str, Dict[str, Dict[str, object]]] = {"boltz": {}, "af3": {}, "colab": {}}
 
-    if boltz1_dir:
-        boltz_root = boltz1_dir
+    if boltz_dir:
+        boltz_root = boltz_dir
         boltz_pattern = os.path.join(boltz_root, 'boltz_results_input_folder', 'predictions', '**', '*')
         for path in glob.glob(boltz_pattern, recursive=True):
             base = os.path.basename(path)
@@ -374,13 +374,13 @@ def main():
     sources: List[str] = args.sources if args.sources else []
     
     if not sources:
-        if args.boltz1_dir: sources.append('boltz')
+        if args.boltz_dir: sources.append('boltz')
         if args.af3_dir:    sources.append('af3')
         if args.colab_dir:  sources.append('colab')
     if not sources:
         raise SystemExit("Provide at least one of --boltz1-dir/--af3-dir/--colab-dir or specify --sources")
 
-    index = build_file_index(args.boltz1_dir, args.af3_dir, args.colab_dir)
+    index = build_file_index(args.boltz_dir, args.af3_dir, args.colab_dir)
 
     # backup
     if args.backup:
