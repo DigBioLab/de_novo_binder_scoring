@@ -50,7 +50,10 @@ def print_info(msg: str):
     print(msg, file=sys.stderr)
 
 def sanitize_stem(stem: str) -> str:
-    return re.sub(r"[^A-Za-z0-9_]", "_", stem)
+    # Convert to lowercase
+    stem = stem.lower()
+    # Replace any character not a-z, 0-9, or _ with underscore
+    return re.sub(r"[^a-z0-9_]", "_", stem)
 
 def int_str_or_blank(v) -> str:
     if v in ("", None):
@@ -511,6 +514,8 @@ def update_run_csv_hybrid(input_csv: Path, pdb_folder: Path, output_csv: Path, a
 
         # Apply user overrides when present
         used_segment_ids = segment_ids
+
+        VALID_AA = set("ACDEFGHIKLMNPQRSTVWY")  # canonical amino acids
         if user_target_chains_raw:
             try:
                 user_target_chains = json.loads(user_target_chains_raw)
@@ -519,19 +524,42 @@ def update_run_csv_hybrid(input_csv: Path, pdb_folder: Path, output_csv: Path, a
                     # recompute seg_columns to align with user-provided IDs
                     seg_columns = {}
                     for sid in used_segment_ids:
+                        # user-provided sequence
                         user_seq = str(base_row.get(f"target_subchain_{sid}_seq", "") or "")
+                        # PDB-extracted sequence
+                        if sid in model:
+                            inferred_seq = chain_sequence(model, sid, ppb)
+                        elif sid in inferred_segment_ids:
+                            inferred_seq = row_out.get(f"target_subchain_{sid}_seq", "")
+                        else:
+                            inferred_seq = ""
+                        
+                        # store PDB sequence in _not_used column if user_seq exists
+                        if user_seq:
+                            seg_columns[f"pdb_extracted_trg_subch_{sid}_not_used"] = inferred_seq
+
+                            # Validate user sequence
+                            invalid_chars = [c for c in user_seq if c.upper() not in VALID_AA]
+                            if invalid_chars:
+                                print(f"WARNING: Invalid characters {invalid_chars} in user sequence for {sid}, binder_id {binder_id}")
+                                print("Check your sequences!!")
+                                # Optionally, you could remove or replace invalid chars:
+                                # user_seq = ''.join(c for c in user_seq if c.upper() in VALID_AA)
+                        
+                        # overwrite sequence (user sequence preferred)
                         if not user_seq:
-                            if sid in model:
-                                user_seq = chain_sequence(model, sid, ppb)
-                            elif sid in inferred_segment_ids:
-                                user_seq = row_out.get(f"target_subchain_{sid}_seq", "")
+                            user_seq = inferred_seq
+
                         seg_columns[f"target_subchain_{sid}_seq"] = user_seq
                         seg_columns[f"target_subchain_{sid}_len"] = int_str_or_blank(len(user_seq)) if user_seq else ""
+
                     row_out["segment_ids"] = json.dumps(used_segment_ids)
                     row_out["target_chains"] = json.dumps(used_segment_ids)
                     row_out.update(seg_columns)
             except Exception:
                 pass
+
+       
         else:
             row_out["target_chains"] = json.dumps(used_segment_ids)
 
@@ -757,6 +785,7 @@ def main():
         run_csv = output_dir / "run.csv"
         update_run_csv_hybrid(input_csv, output_pdbs, run_csv, san_map, distance_threshold=args.distance_threshold)
         print(f"Wrote: {run_csv}")
+
 
     elif args.mode == "pdb_only":
         if not args.input_pdbs:

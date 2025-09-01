@@ -33,14 +33,15 @@
 # Python virtual environment activation script
 CONDA_ENV="/dtu/projects/RFdiffusion/scripts_collection/binder_desing_metrics/miniconda3/bin/activate"
 AF3_WEIGHTS="/dtu/projects/RFdiffusion/AF3/3.0.0/model_parameter"
-OUTPUT_DIR="/zhome/projects/project.maxove.anryg/de_novo_binder_scoring/example_outputs"
+OUTPUT_DIR="/work3/anryg/de_novo_binder_scoring/example_output"
 INPUT_PDBS="./example_input/input_pdbs"
 INPUT_CSV="./example_input/input.csv"
-SCRIPT_DIR="/zhome/projects/project.maxove.anryg/de_novo_binder_scoring"
+SCRIPT_DIR="/work3/anryg/de_novo_binder_scoring"
 
 
 LOG_DIR="${OUTPUT_DIR}/log"
 mkdir -p "${LOG_DIR}"
+mkdir -p "${OUTPUT_DIR}"
 OVERALL_START_TIME=$(date +%s)
 
 count=$(tail -n +1 "${INPUT_CSV}" | wc -l)
