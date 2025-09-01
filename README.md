@@ -66,22 +66,45 @@ For AF2 initial guess the pdbs have the correct format to use them directly as a
 
 #### Extract model metrics
 ```bash
-python extract_confidence_metrics.py   --run_csv ./outputs/run.csv   --output_dir ./outputs   --colab_dir ./outputs/ColabFold   --boltz_dir ./outputs/Boltz   --af3_dir ./outputs/AF3   --af2_dir ./outputs/AF2
+python extract_confidence_metrics.py
+--run_csv ./outputs/run.csv \
+--output_dir ./outputs \
+--colab_dir ./outputs/ColabFold \
+--boltz_dir ./outputs/Boltz \
+--af3_dir ./outputs/AF3 \
+--af2_dir ./outputs/AF2
 ```
 
 #### Compute ipSAE scores ([IPSAE](https://github.com/DunbrackLab/IPSAE)):
 ```bash
-python run_ipsae_batch.py   --run-csv ./outputs/run.csv   --af3-dir ./outputs/AF3   --boltz-dir ./outputs/Boltz   --colab-dir ./outputs/ColabFold
+python run_ipsae_batch.py
+--run-csv ./outputs/run.csv \
+--af3-dir ./outputs/AF3 \
+--boltz-dir ./outputs/Boltz \
+--colab-dir ./outputs/ColabFold
 ```
 
 #### Compute Rosetta metrics ([BindCraft-inspired](https://github.com/martinpacesa/BindCraft)):
 ```bash
-python compute_rosetta_metrics.py   --run_csv ./outputs/run.csv   --out_csv ./outputs/rosetta_metrics.csv   --input input=./outputs/input_pdbs   --input af3=./outputs/AF3/pdbs   --input boltz=./outputs/Boltz/pdbs   --input colab=./outputs/ColabFold/pdbs   --input af2=./outputs/AF2/pdbs
+python compute_rosetta_metrics.py
+--run_csv ./outputs/run.csv \
+--out_csv ./outputs/rosetta_metrics.csv \
+--input input=./outputs/input_pdbs \
+--input af3=./outputs/AF3/pdbs \
+--input boltz=./outputs/Boltz/pdbs \
+--input colab=./outputs/ColabFold/pdbs \
+--input af2=./outputs/AF2/pdbs
 ```
 
 #### Compute RMSD (requires at least two sets of PDBs):
 ```bash
-python rmsd.py --folder input:./outputs/input_pdbs   --folder af3:./outputs/AF3/pdbs   --folder af2:./outputs/AF2/pdbs   --folder boltz:./outputs/Boltz/pdbs   --folder colab:./outputs/ColabFold/pdbs   --out-csv ./outputs/rmsd.csv
+python rmsd.py \ 
+--folder input:./outputs/input_pdbs \
+--folder af3:./outputs/AF3/pdbs \
+--folder af2:./outputs/AF2/pdbs \
+--folder boltz:./outputs/Boltz/pdbs \
+--folder colab:./outputs/ColabFold/pdbs \
+--out-csv ./outputs/rmsd.csv
 ```
 
 
@@ -117,6 +140,7 @@ echo '{"input": "'$OUTPUT_DIR/input_pdbs'", "af2": "'$OUTPUT_DIR/AF2/pdbs'", "co
 cd $OUTPUT_DIR
 # Run Pymol in command-line mode to execute the analysis script.
 python -m pymol -c -d "run ../pymol_metrics.py"
+```
 ---
 ## Example run
 
