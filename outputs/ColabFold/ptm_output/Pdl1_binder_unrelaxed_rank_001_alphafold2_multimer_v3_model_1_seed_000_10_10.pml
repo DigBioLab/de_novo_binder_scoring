@@ -1,0 +1,8 @@
+# Chn1 Chn2  PAE Dist  Type   ipSAE    ipSAE_d0chn ipSAE_d0dom  ipTM_af  ipTM_d0chn     pDockQ     pDockQ2    LIS      n0res  n0chn  n0dom   d0res   d0chn   d0dom  nres1   nres2   dist1   dist2  Model
+# A    B     10   10   asym  0.867983    0.691829    0.013295    0.922602    0.922602    0.920    0.922602      0.5757     0.9032     0.7758     3.1702     115    209    209    3.96    5.38    5.38     94     115      35      33   ./outputs/ColabFold/ptm_output/Pdl1_binder_unrelaxed_rank_001_alphafold2_multimer_v3_model_1_seed_000
+alias color_A_B, color gray80, all; color magenta, chain  A and resi 1-94; color marine, chain  B and resi 1-115
+
+# B    A     10   10   asym  0.842880    0.597492    0.010936    0.925175    0.924859    0.920    0.925175      0.5757     0.9059     0.7482     3.1702      94    209    208    3.52    5.38    5.37    114      94      33      35   ./outputs/ColabFold/ptm_output/Pdl1_binder_unrelaxed_rank_001_alphafold2_multimer_v3_model_1_seed_000
+# A    B     10   10   max   0.867983    0.691829    0.013295    0.925175    0.924859    0.920    0.925175      0.5757     0.9059     0.7620     3.1702     115    209    208    3.96    5.38    5.37     94     115      35      33   ./outputs/ColabFold/ptm_output/Pdl1_binder_unrelaxed_rank_001_alphafold2_multimer_v3_model_1_seed_000
+alias color_B_A, color gray80, all; color marine, chain  B and resi 2-115; color magenta, chain  A and resi 1-94
+

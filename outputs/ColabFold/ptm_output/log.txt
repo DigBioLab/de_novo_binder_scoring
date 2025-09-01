@@ -1,0 +1,7 @@
+2025-08-29 13:11:58,395 Running colabfold 1.5.5 (acc0bf772f22feb7f887ad132b7313ff415c8a9f)
+2025-08-29 13:11:58,985 Running on GPU
+2025-08-29 13:11:59,213 Found 5 citations for tools or databases
+2025-08-29 13:11:59,213 Skipping Pdl1_binder (already done)
+2025-08-29 13:11:59,214 Skipping pMHC_binder_fused_target_chain (already done)
+2025-08-29 13:11:59,214 Skipping pMHC_binder_multi_target_chain (already done)
+2025-08-29 13:11:59,214 Done

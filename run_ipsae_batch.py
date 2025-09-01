@@ -52,7 +52,7 @@ def parse_args():
     # Optional explicit source list; otherwise inferred from dirs provided
     p.add_argument("--sources", nargs="+", choices=["boltz","af3","colab"], help="Which sources to scan (defaults to dirs provided)")
 
-    p.add_argument("--ipsae-script-path", default="ipsae_w_ipae.py", required=True, help="Path to ipsae_w_ipae.py")
+    p.add_argument("--ipsae-script-path", default="ipsae_w_ipae.py", help="Path to ipsae_w_ipae.py")
     p.add_argument("--pae-cutoff", type=float, default=10.0, help="PAE cutoff")
     p.add_argument("--dist-cutoff", type=float, default=10.0, help="Distance cutoff")
     p.add_argument("--overwrite-ipsae", action="store_true", help="Recompute even if *.txt already exists")

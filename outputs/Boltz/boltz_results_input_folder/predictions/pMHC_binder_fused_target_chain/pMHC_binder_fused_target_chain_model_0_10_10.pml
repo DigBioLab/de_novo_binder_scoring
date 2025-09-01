@@ -1,0 +1,43 @@
+# Chn1 Chn2  PAE Dist  Type   ipSAE    ipSAE_d0chn ipSAE_d0dom  ipTM_af  ipTM_d0chn     pDockQ     pDockQ2    LIS      n0res  n0chn  n0dom   d0res   d0chn   d0dom  nres1   nres2   dist1   dist2  Model
+# A    B     10   10   asym  0.733670    0.565817    0.011842    0.794062    0.794062    0.909    0.794062      0.4850     0.6045     0.5483     5.3468     276    420    420    6.12    7.37    7.37    144     276      49      43   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_A_B, color gray80, all; color magenta, chain  A and resi 1-144; color marine, chain  B and resi 1-276
+
+# B    A     10   10   asym  0.768255    0.548905    0.010954    0.897625    0.895935    0.845    0.897625      0.4850     0.6676     0.6432     5.3468     144    420    411    4.47    7.37    7.31    267     144      43      49   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+# A    B     10   10   max   0.768255    0.565817    0.011842    0.897625    0.895935    0.909    0.897625      0.4850     0.6676     0.5958     5.3468     144    420    411    4.47    7.37    7.31    144     276      49      43   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_B_A, color gray80, all; color marine, chain  B and resi 1-193+195+198-223+228-274; color magenta, chain  A and resi 1-144
+
+# A    C     10   10   asym  0.388160    0.227672    0.011218    0.606600    0.602134    0.865    0.606600      0.0000     0.0000     0.4275     6.3192     100    244    239    3.65    5.79    5.73    139     100       0       0   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_A_C, color gray80, all; color magenta, chain  A and resi 2-55+57+60-143; color lime, chain  C and resi 1-100
+
+# C    A     10   10   asym  0.672277    0.511415    0.022397    0.772462    0.768454    0.783    0.772462      0.0000     0.0000     0.6166     6.3192     144    244    238    4.47    5.79    5.72     94     144       0       0   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+# A    C     10   10   max   0.672277    0.511415    0.022397    0.772462    0.768454    0.865    0.772462      0.0000     0.0000     0.5220     6.3192     144    244    238    4.47    5.79    5.72    144     100       0       0   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_C_A, color gray80, all; color lime, chain  C and resi 3-75+77-97; color magenta, chain  A and resi 1-144
+
+# A    D     10   10   asym  0.209394    0.111178    0.012493    0.821500    0.820541    0.880    0.821500      0.0549     0.5388     0.7184     3.8200       9    153    152    1.04    4.61    4.59    143       9      19       8   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_A_D, color gray80, all; color magenta, chain  A and resi 2-144; color orange, chain  D and resi 1-9
+
+# D    A     10   10   asym  0.699092    0.554753    0.423211    0.711598    0.711598    0.930    0.711598      0.0549     0.5115     0.6546     3.8200     144    153    153    4.47    4.61    4.61      9     144       8      19   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+# A    D     10   10   max   0.699092    0.554753    0.423211    0.821500    0.820541    0.930    0.821500      0.0549     0.5388     0.6865     3.8200     144    153    152    4.47    4.61    4.59    144       9      19       8   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_D_A, color gray80, all; color orange, chain  D and resi 1-9; color magenta, chain  A and resi 1-144
+
+# B    C     10   10   asym  0.917224    0.662449    0.011479    0.975730    0.975676    0.966    0.975730      0.6003     0.9331     0.7706     2.8388     100    376    375    3.65    7.03    7.02    275     100      62      38   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_B_C, color gray80, all; color marine, chain  B and resi 2-276; color lime, chain  C and resi 1-100
+
+# C    B     10   10   asym  0.953053    0.831995    0.017067    0.963733    0.963733    0.977    0.963733      0.6003     0.9111     0.7823     2.8388     276    376    376    6.12    7.03    7.03    100     276      38      62   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+# B    C     10   10   max   0.953053    0.831995    0.017067    0.975730    0.975676    0.977    0.975730      0.6003     0.9331     0.7765     2.8388     276    376    375    6.12    7.03    7.02    276     100      62      38   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_C_B, color gray80, all; color lime, chain  C and resi 1-100; color marine, chain  B and resi 1-276
+
+# B    D     10   10   asym  0.674072    0.300626    0.011166    0.986497    0.986193    0.928    0.986497      0.3885     0.8441     0.7925     3.3389       9    285    278    1.04    6.21    6.14    269       9      61       9   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_B_D, color gray80, all; color marine, chain  B and resi 1-195+198-224+228-274; color orange, chain  D and resi 1-9
+
+# D    B     10   10   asym  0.893452    0.733532    0.607260    0.895947    0.895947    0.989    0.895947      0.3885     0.8221     0.6778     3.3389     276    285    285    6.12    6.21    6.21      9     276       9      61   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+# B    D     10   10   max   0.893452    0.733532    0.607260    0.986497    0.986193    0.989    0.986497      0.3885     0.8441     0.7351     3.3389     276    285    278    6.12    6.21    6.14    276       9      61       9   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_D_B, color gray80, all; color orange, chain  D and resi 1-9; color marine, chain  B and resi 1-276
+
+# C    D     10   10   asym  0.432965    0.176011    0.011398    0.910300    0.909444    0.901    0.910300      0.0000     0.0000     0.7506     4.1797       9    109    108    1.04    3.84    3.82     99       9       0       0   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_C_D, color gray80, all; color lime, chain  C and resi 2-100; color orange, chain  D and resi 1-9
+
+# D    C     10   10   asym  0.676027    0.384301    0.165408    0.696545    0.696545    0.973    0.696545      0.0000     0.0000     0.5662     4.1797     100    109    109    3.65    3.84    3.84      9     100       0       0   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+# C    D     10   10   max   0.676027    0.384301    0.165408    0.910300    0.909444    0.973    0.910300      0.0000     0.0000     0.6584     4.1797     100    109    108    3.65    3.84    3.82    100       9       0       0   ./outputs/Boltz/boltz_results_input_folder/predictions/pMHC_binder_fused_target_chain/pMHC_binder_fused_target_chain_model_0
+alias color_D_C, color gray80, all; color orange, chain  D and resi 1-9; color lime, chain  C and resi 1-100
+
