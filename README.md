@@ -59,7 +59,8 @@ python generate_model_inputs.py   --csv_file ./outputs/run.csv   --out_dir ./out
 
 The individual structure prediction tools need to be installed independenly, an example how they can be run can be found in the example_run.sh
 
-For AF2 initial guess the pdbs have the correct format to use them directly as an input as specified here https://github.com/nrbennet/dl_binder_design. 
+For AF2 initial guess the pdbs have the correct format to use them directly as an input as specified here https://github.com/nrbennet/dl_binder_design.
+
 ---
 
 ### 4. Process outputs
