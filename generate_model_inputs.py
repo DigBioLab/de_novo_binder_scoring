@@ -326,8 +326,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate inputs for selected models: AF3, Boltz, ColabFold."
     )
-    parser.add_argument("--csv_file", required=True, help="Path to the CSV produced earlier (with *_seq and msa_path_* columns).")
-    parser.add_argument("--out_dir", required=True, help="Base output directory where model subfolders will be created.")
+    parser.add_argument("--run-csv", required=True, help="Path to the CSV produced earlier (with *_seq and msa_path_* columns).")
+    parser.add_argument("--out-dir", required=True, help="Base output directory where model subfolders will be created.")
     parser.add_argument("--models", nargs="+", choices=["af3","boltz","colabfold"],
                         help="Which models to generate inputs for. Default: all (af3 boltz colabfold).")
     args = parser.parse_args()

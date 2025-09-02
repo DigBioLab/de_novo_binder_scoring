@@ -59,6 +59,8 @@ def parse_args():
     p.add_argument("--max-workers", type=int, default=None, help="Parallel workers (defaults to CPU count)")
     p.add_argument("--backup", action="store_true", help="Write run.csv.bak before overwrite")
     p.add_argument("--verbose", action="store_true", help="Print more info while processing")
+    p.add_argument("--out-csv", required=True, help="Path to write the calculated metrics CSV")
+
     return p.parse_args()
 
 # -------------------------
@@ -411,12 +413,9 @@ def main():
             all_notes.extend(notes)
 
     res_df = pd.DataFrame.from_dict(collected, orient='index')
-    res_df.index.name = 'binder_id'
-    res_df.reset_index(inplace=True)
-
-    out_df = run_df.merge(res_df, on='binder_id', how='left')
-    out_df.to_csv(run_csv_path, index=False)
-    print(f"Updated {run_csv_path} with {len(out_df)} rows and {len(out_df.columns)} columns")
+    res_df.to_csv(args.out_csv,index=False)
+    print(f"Written metrics to {args.out_csv} with {len(res_df)} rows and {len(res_df.columns)} columns")
+    
 
     if all_notes:
         print("\n# Notes / warnings:")

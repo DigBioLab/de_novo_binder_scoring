@@ -85,7 +85,7 @@ def parse_args():
     ap.add_argument("--model", action="append", required=True,
                     help="Model definition in the form prefix:/path/to/pdbs. "
                          "Can be given multiple times.")
-    ap.add_argument("--output_csv", required=True, help="Destination CSV path.")
+    ap.add_argument("--out-csv", required=True, help="Destination CSV path.")
     ap.add_argument("--mapA", default="A", help="Map input chain A to this chain id in models")
     ap.add_argument("--mapB", default="B", help="Map input chain B to this chain id in models")
     return ap.parse_args()

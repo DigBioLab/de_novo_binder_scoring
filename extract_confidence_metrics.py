@@ -633,8 +633,8 @@ def parse_args():
     p = argparse.ArgumentParser(
         description="Combine model metrics into run.csv; choose models with --models"
     )
-    p.add_argument("--run_csv", required=True, help="Path to run.csv (will be updated in-place)")
-    p.add_argument("--output_dir", required=True, help="Pipeline output base directory")
+    p.add_argument("--run-csv", required=True, help="Path to run.csv (will be updated in-place)")
+    p.add_argument("--out-dir", required=True, help="Pipeline output base directory")
     p.add_argument("--models", default="colab,boltz1,af3,af2",
                    help="Comma-separated list among: colab,boltz1,af3,af2")
     # Optional overrides (defaults derive from output_dir)

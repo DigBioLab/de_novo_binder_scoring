@@ -39,8 +39,8 @@ START_TIME=$(date +%s)
 echo -e "\nRelaxing input PDBs and computing Rosetta metrics" >> "${LOG_DIR}/log.txt"
 
 python compute_rosetta_metrics.py \
-  --run_csv "${OUTPUT_DIR}/run.csv" \
-  --out_csv "${OUTPUT_DIR}/input_rosetta_metrics.csv" \
+  --run-csv "${OUTPUT_DIR}/run.csv" \
+  --out-csv "${OUTPUT_DIR}/input_rosetta_metrics.csv" \
   --input input="${OUTPUT_DIR}/input_pdbs" \
 
 conda deactivate
@@ -81,8 +81,8 @@ source "$CONDA_PATH"
 conda activate binder_scoring_env
 
 python generate_model_inputs.py \
-  --csv_file "${OUTPUT_DIR}/run.csv" \
-  --out_dir  "${OUTPUT_DIR}"
+  --run-csv "${OUTPUT_DIR}/run.csv" \
+  --out-dir  "${OUTPUT_DIR}"
 
 conda deactivate
 conda deactivate
@@ -157,8 +157,8 @@ source "$CONDA_PATH"
 conda activate binder_scoring_env
 
 python extract_confidence_metrics.py \
-  --run_csv  "${OUTPUT_DIR}/run.csv" \
-  --output_dir "${OUTPUT_DIR}"
+  --run-csv  "${OUTPUT_DIR}/run.csv" \
+  --out-dir "${OUTPUT_DIR}"
 
 
 # ==============================================================================
@@ -167,6 +167,7 @@ python extract_confidence_metrics.py \
 echo -e "\nComputing ipSAE and other interface confidence metrics" >> "${LOG_DIR}/log.txt"
 python run_ipsae_batch.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
+  --out-csv "${OUTPUT_DIR}/ipsae_and_ipae.csv" \
   --af3-dir "${OUTPUT_DIR}/AF3" \
   --boltz1-dir "${OUTPUT_DIR}/Boltz" \
   --colab-dir "${OUTPUT_DIR}/ColabFold" \
@@ -184,7 +185,7 @@ python dockQ.py \
   --model af2:"${OUTPUT_DIR}/AF2/pdbs/" \
   --model boltz1:"${OUTPUT_DIR}/Boltz/pdbs" \
   --model colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
-  --output_csv "${OUTPUT_DIR}/dockQ.csv"
+  --out-csv "${OUTPUT_DIR}/dockQ.csv"
 
 # ==============================================================================
 # 9. Computing Camsol
@@ -202,8 +203,8 @@ START_TIME=$(date +%s)
 echo -e "\nRelaxing model PDBs and computing Rosetta metrics" >> "${LOG_DIR}/log.txt"
 
 python compute_rosetta_metrics.py \
-  --run_csv "${OUTPUT_DIR}/run.csv" \
-  --out_csv "${OUTPUT_DIR}/rosetta_metrics.csv" \
+  --run-csv "${OUTPUT_DIR}/run.csv" \
+  --out-csv "${OUTPUT_DIR}/rosetta_metrics.csv" \
   --input af3="${OUTPUT_DIR}/AF3/pdbs" \
   --input boltz1="${OUTPUT_DIR}/Boltz/pdbs" \
   --input colab="${OUTPUT_DIR}/ColabFold/pdbs" \

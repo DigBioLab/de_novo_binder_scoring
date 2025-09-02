@@ -373,9 +373,9 @@ def _parse_inputs(argv=None):
     ap.add_argument("--input", action="append", default=[],
                     help="Repeatable: PREFIX=FOLDER (e.g., --input af3=/path/AF3/pdbs)")
     # Common
-    ap.add_argument("--run_csv", required=False, default=None,
+    ap.add_argument("--run-csv", required=False, default=None,
                     help="Optional: path to an existing run.csv to update in-place")
-    ap.add_argument("--out_csv", required=False, default="rosetta_metrics.csv",
+    ap.add_argument("--out-csv", required=False, default="rosetta_metrics.csv",
                     help="Output CSV filename to write aggregated results (always written)")
     ap.add_argument("--relaxed_dir", default=None,
                     help="Base folder to cache relaxed PDBs. If multiple inputs, a subfolder per prefix is created. "
