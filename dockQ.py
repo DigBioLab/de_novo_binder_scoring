@@ -5,6 +5,7 @@ import argparse
 from DockQ.DockQ import load_PDB, run_on_all_native_interfaces
 
 
+
 def calculate_scores(native_path, model_path, chain_map):
     """
     Run DockQ: compare model to native (input) and return total score.
@@ -75,38 +76,51 @@ def analyze_against_input(input_folder: str, models: dict, output_csv: str, chai
     print(f"[ok] CSV written: {output_csv}")
 
 
+def parse_folder_kv(value):
+    """
+    Parse --folder flags of the form name:path
+    """
+    if ":" not in value:
+        raise argparse.ArgumentTypeError("Folder must be given as name:path")
+    name, path = value.split(":", 1)
+    name = name.strip()
+    path = os.path.abspath(os.path.expandvars(os.path.expanduser(path.strip())))
+    if not name:
+        raise argparse.ArgumentTypeError("Folder name is empty")
+    if not os.path.isdir(path):
+        raise argparse.ArgumentTypeError(f"Folder path does not exist: {path}")
+    return name, path
+
 def parse_args():
     ap = argparse.ArgumentParser(
         description="Compute DockQ against required input folder, "
                     "with any number of model folders + prefixes."
     )
-    ap.add_argument("--input_pdbs", required=True,
-                    help="Path to REQUIRED reference/input PDBs (binder_id.pdb).")
-    ap.add_argument("--model", action="append", required=True,
-                    help="Model definition in the form prefix:/path/to/pdbs. "
-                         "Can be given multiple times.")
+    ap.add_argument(
+        "--input-pdbs",
+        required=True,
+        help="Path to REQUIRED reference/input PDBs (binder_id.pdb)."
+    )
+    ap.add_argument(
+        "--folder",
+        action="append",
+        required=True,
+        type=parse_folder_kv,
+        help='Repeatable. Format "name:path". Example: --folder af3:/path/to/AF3/pdbs'
+    )
     ap.add_argument("--out-csv", required=True, help="Destination CSV path.")
     ap.add_argument("--mapA", default="A", help="Map input chain A to this chain id in models")
     ap.add_argument("--mapB", default="B", help="Map input chain B to this chain id in models")
     return ap.parse_args()
 
-
 def main():
     args = parse_args()
 
-    models = {}
-    for m in args.model:
-        if ":" not in m:
-            raise ValueError(f"--model must be prefix:/path form, got {m}")
-        prefix, folder = m.split(":", 1)
-        folder = os.path.abspath(folder)
-        if not os.path.isdir(folder):
-            raise FileNotFoundError(f"Model folder not found: {folder}")
-        models[prefix] = folder
+    # Convert list of (name, path) to dict
+    models = dict(args.folder)
 
     chain_map = {"A": args.mapA, "B": args.mapB}
-    analyze_against_input(args.input_pdbs, models, args.output_csv, chain_map)
-
+    analyze_against_input(args.input_pdbs, models, args.out_csv, chain_map)
 
 if __name__ == "__main__":
     main()

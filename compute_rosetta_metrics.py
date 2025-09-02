@@ -364,42 +364,57 @@ def merge_metrics_into_run(run_csv: str, results: Dict[str, Dict], prefix: str):
 
 import argparse, glob, multiprocessing as mp, os
 
+
+def parse_folder_kv(value):
+    """
+    Parse --folder flags of the form name:path
+    """
+    if ":" not in value:
+        raise argparse.ArgumentTypeError("Folder must be given as name:path")
+    name, path = value.split(":", 1)
+    name = name.strip()
+    path = os.path.expandvars(os.path.expanduser(path.strip()))
+    if not name:
+        raise argparse.ArgumentTypeError("Folder name is empty")
+    if not os.path.isdir(path):
+        raise argparse.ArgumentTypeError(f"Folder path does not exist: {path}")
+    return name, path
+
 def _parse_inputs(argv=None):
     ap = argparse.ArgumentParser(
         description="Compute PyRosetta interface metrics for one or many folders and optionally merge into run.csv.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    # Repeatable inputs
-    ap.add_argument("--input", action="append", default=[],
-                    help="Repeatable: PREFIX=FOLDER (e.g., --input af3=/path/AF3/pdbs)")
+
+    # Repeatable inputs (now using --folder name:path style)
+    ap.add_argument(
+        "--folder",
+        action="append",
+        required=True,
+        type=parse_folder_kv,
+        help='Repeatable. Format "name:path". Example: --folder af3:/path/to/AF3/pdbs',
+    )
+
     # Common
-    ap.add_argument("--run-csv", required=False, default=None,
+    ap.add_argument("--run-csv", default=None,
                     help="Optional: path to an existing run.csv to update in-place")
-    ap.add_argument("--out-csv", required=False, default="rosetta_metrics.csv",
+    ap.add_argument("--out-csv", default="rosetta_metrics.csv",
                     help="Output CSV filename to write aggregated results (always written)")
-    ap.add_argument("--relaxed_dir", default=None,
+    ap.add_argument("--relaxed-dir", default=None,
                     help="Base folder to cache relaxed PDBs. If multiple inputs, a subfolder per prefix is created. "
                          "Default: <pdbs>/relaxed_pdbs for each input.")
-    ap.add_argument("--binder_chain", default="A")
-    ap.add_argument("--target_chain", default="B")
+    ap.add_argument("--binder-chain", default="A")
+    ap.add_argument("--target-chain", default="B")
     ap.add_argument("--nprocs", type=int, default=mp.cpu_count())
-    ap.add_argument("--dalphaball_path", default="./functions/DAlphaBall.gcc")
+    ap.add_argument("--dalphaball-path", default="./functions/DAlphaBall.gcc")
     args = ap.parse_args(argv)
 
-    mapping = {}
-    # Parse repeatable --input PREFIX=DIR
-    for item in args.input:
-        if "=" not in item:
-            raise SystemExit(f"--input expects PREFIX=DIR (got: {item})")
-        prefix, folder = item.split("=", 1)
-        prefix, folder = prefix.strip(), folder.strip()
-        if not prefix or not folder:
-            raise SystemExit(f"--input expects PREFIX=DIR (got: {item})")
-        mapping[prefix] = folder
+    # Convert to dict mapping
+    mapping = dict(args.folder)  # [(name, path), ...] → {name: path}
 
     # Require at least one input
     if not mapping:
-        raise SystemExit("Provide one or more --input PREFIX=DIR.")
+        raise SystemExit("Provide one or more --folder NAME:PATH.")
 
     return args, mapping
 
