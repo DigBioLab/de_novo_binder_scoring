@@ -65,7 +65,7 @@ Useful if you want full control over sequences (e.g., curated or designed sequen
 `hybrid` (possibility of overwriting PDB extracted sequence of target chains)
 
 In this mode, by default, sequences are extracted from the PDBs.
-However one can also ***overwrite the PDB extracted seqeunces***. To overwrite the PDB extracted sequences with custom sequence, the input CSV must specify both:
+However one can also ***overwrite the PDB extracted seqeunces***, as well as any other columns. To overwrite the PDB extracted sequences with custom sequence, the input CSV must specify both:
 
   * `target_chains` please specify all target chains (also ones that should not be overwritten)
   * `target_subchain_X_seq` (one column per subchain that one wants to overwrite, e.g., `target_subchain_D_seq`)
