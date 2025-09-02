@@ -19,7 +19,8 @@ chmod +x ./functions/DAlphaBall.gcc
 ```
 
 ⚠️ **Note**: This repo requires [PyRosetta](https://www.pyrosetta.org/downloads), which requires a license for commercial use.
-⚠️ **Note**: Some code blocks of this repo require enviroments and licenses to run the structure predictions tools - these blocks are marked in the `example_run.sh` script
+
+⚠️ **Note**: This repo requires enviroments and licenses to run the structure predictions tools - these blocks are marked in the `example_run.sh` script.
 
 ---
 
@@ -73,15 +74,11 @@ However one can also ***overwrite the PDB extracted seqeunces***, as well as any
 
 Then the CSV-provided sequence will overwrite the extracted version for that chain.
 
-**Additional behaviors in hybrid mode:**
+**Additional behavior in hybrid mode:**
 
-  * **Validation**
-    CSV-provided sequences are checked to ensure they contain only valid protein characters: `ACDEFGHIKLMNPQRSTVWY`.
   * **Logging extracted sequences**
     When a CSV-provided sequence overwrites a PDB-extracted one, the extracted sequence is still stored in a dedicated column: `pdb_extracted_trg_subch_{X}_not_used`.
     This ensures transparency: you can always compare the provided sequence against what was found in the structure.
-
-Please see the `example_submission_overwrite.sh` for an example
 
 <!-- end list -->
 
@@ -166,11 +163,6 @@ python dockQ.py \
   --model boltz1:./outputs/Boltz/pdbs \
   --model colab:./outputs/ColabFold/pdbs \
   --output_csv ./outputs/dockQ.csv
-```
-
-#### Compute CamsolScore of binder sequneces:
-```bash
-python camsol_intrinsic_linear.py ./outputs/Binder_seq.fasta -out ./outputs/camsol_scores.txt
 ```
 
 

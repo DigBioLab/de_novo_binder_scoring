@@ -150,7 +150,7 @@ echo "AF3 completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.tx
 cd $SCRIPT_DIR
 
 # ==============================================================================
-# 7. Extracting confidence metrics and model_0 PDBs
+# 8. Extracting confidence metrics and model_0 PDBs
 # ==============================================================================
 cd $SCRIPT_DIR
 START_TIME=$(date +%s)
@@ -166,7 +166,7 @@ python extract_confidence_metrics.py \
 
 
 # ==============================================================================
-# 8. compute ipSAE and other interface confidence metrics
+# 9. compute ipSAE and other interface confidence metrics
 # ==============================================================================
 echo -e "\nComputing ipSAE and other interface confidence metrics" >> "${LOG_DIR}/log.txt"
 python run_ipsae_batch.py \
@@ -179,7 +179,7 @@ python run_ipsae_batch.py \
   --pae-cutoff 10 --dist-cutoff 10 \
 
 # ==============================================================================
-# 9. Computing DockQ
+# 10. Computing DockQ
 # ==============================================================================
 echo -e "\nComputing dockQ" >> "${LOG_DIR}/log.txt"
 
@@ -191,16 +191,9 @@ python dockQ.py \
   --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
   --out-csv "${OUTPUT_DIR}/dockQ.csv"
 
-# ==============================================================================
-# 9. Computing Camsol
-# ==============================================================================
-echo -e "\nComputing Camsol" >> "${LOG_DIR}/log.txt"
-
-# Run CamSol to calculate intrinsic solubility scores.
-python camsol_intrinsic_linear.py "${OUTPUT_DIR}/Binder_seq.fasta" -out "${OUTPUT_DIR}/camsol_scores.txt"
 
 # ==============================================================================
-# 10. Compute Rosetta metrics
+# 11. Compute Rosetta metrics
 # ==============================================================================
 
 START_TIME=$(date +%s)
@@ -217,7 +210,7 @@ python compute_rosetta_metrics.py \
 END_TIME=$(date +%s)
 echo "Structures relaxed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 # ==============================================================================
-# 10. Compute RMSDs
+# 12. Compute RMSDs
 # ==============================================================================
 echo -e "\nComputing RMSDs" >> "${LOG_DIR}/log.txt"
 
@@ -231,7 +224,7 @@ python rmsd.py \
 conda deactivate
 
 # ==============================================================================
-# 12. Pymol Metrics: Interface Analysis & Hydrogen Bonds
+# 13. Pymol Metrics: Interface Analysis & Hydrogen Bonds
 # ==============================================================================
 cd ${OUTPUT_DIR}
 START_TIME=$(date +%s)
