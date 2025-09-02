@@ -1,0 +1,4 @@
+binder_id,target_id,binder_chain,target_chains,target_chain_range,msa_info,binder,source,target_subchain_B_seq
+Pdl1_binder,Pdl1,A,"[""B""]","[""1:115""]","[""A:no_msa"", ""B:run_msa""]",TRUE,Pdl1 Watson et al,
+pMHC_binder_fused_target_chain,pMHC NY1,A,"[""B"", ""C"", ""D""]","[""1:276"", ""277:376"", ""377:385""]","[""A:no_msa"", ""B:run_msa"", ""C:run_msa"", ""D:run_msa""]",FALSE,pMHC screening NY1,A
+pMHC_binder_multi_target_chain,pMHC NY1,A,"[""B"", ""C"", ""D""]","[""1:276"", ""277:376"", ""377:385""]","[""A:no_msa"", ""B:run_msa"", ""C:run_msa"", ""D:run_msa""]",FALSE,pMHC screening NY1,ABCO

@@ -1,4 +1,7 @@
 example_outputs/
+example_output/
+example_input_overwrite/
 .empty/
 *.err
 *.out
+example_output_overwrite
