@@ -19,6 +19,7 @@ chmod +x ./functions/DAlphaBall.gcc
 ```
 
 ⚠️ **Note**: This repo requires [PyRosetta](https://www.pyrosetta.org/downloads), which requires a license for commercial use.
+⚠️ **Note**: Some code blocks of this repo require enviroments and licenses to run the structure predictions tools - these blocks are marked in the `example_run.sh` script
 
 ---
 

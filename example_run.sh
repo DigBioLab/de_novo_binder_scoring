@@ -49,7 +49,7 @@ END_TIME=$(date +%s)
 echo "Structures relaxed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 
 # ==============================================================================
-# 3. Run Alphafold2 initial guess
+# 3. Run Alphafold2 initial guess ***REQUIRES an environment to run af2_initial_guess***
 # ==============================================================================
 START_TIME=$(date +%s)
 echo -e "\nRunning AF2 initial guess" >> "${LOG_DIR}/log.txt"
@@ -68,14 +68,18 @@ END_TIME=$(date +%s)
 echo "AF2 initial guess completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 
 # ==============================================================================
-# 4. Generate MSA files and model inputs
+# 4A. Generate MSA files  ***REQUIRES an environment to run colabfold***
 # ==============================================================================
+
 cd $SCRIPT_DIR
 source /dtu/projects/RFdiffusion/setup.sh
 module load colabfold/1.5.6
 colabfold_batch "${OUTPUT_DIR}/unique_msa" "${OUTPUT_DIR}/unique_msa/msa"  --msa-only
 module purge
 
+#==============================================================================
+# 4B. Generate model inputs
+# ==============================================================================
 
 source "$CONDA_PATH"
 conda activate binder_scoring_env
@@ -88,7 +92,7 @@ conda deactivate
 conda deactivate
 
 # ==============================================================================
-# 5. Run ColabFold
+# 5. Run ColabFold ***REQUIRES an environment to run colabfold***
 # ==============================================================================
 START_TIME=$(date +%s)
 echo -e "\nRunning ColabFold" >> "${LOG_DIR}/log.txt"
@@ -102,7 +106,7 @@ END_TIME=$(date +%s)
 echo "ColabFold completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 
 # ==============================================================================
-# 6. Run Boltz
+# 6. Run Boltz  ***REQUIRES an environment to run boltz***
 # ==============================================================================
 START_TIME=$(date +%s)
 echo -e "\nRunning Boltz" >> "${LOG_DIR}/log.txt"
@@ -118,7 +122,7 @@ END_TIME=$(date +%s)
 echo "Boltz completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 
 # ==============================================================================
-# 7. Run AF3
+# 7. Run AF3 ***REQUIRES an environment to run af3***
 # ==============================================================================
 START_TIME=$(date +%s)
 echo -e "\nRunning AF3" >> "${LOG_DIR}/log.txt"
@@ -180,11 +184,11 @@ python run_ipsae_batch.py \
 echo -e "\nComputing dockQ" >> "${LOG_DIR}/log.txt"
 
 python dockQ.py \
-  --input_pdbs "${OUTPUT_DIR}/input_pdbs/" \
-  --model af3:"${OUTPUT_DIR}/AF3/pdbs/" \
-  --model af2:"${OUTPUT_DIR}/AF2/pdbs/" \
-  --model boltz1:"${OUTPUT_DIR}/Boltz/pdbs" \
-  --model colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
+  --input-pdbs "${OUTPUT_DIR}/input_pdbs/" \
+  --folder af3:"${OUTPUT_DIR}/AF3/pdbs/" \
+  --folder af2:"${OUTPUT_DIR}/AF2/pdbs/" \
+  --folder boltz1:"${OUTPUT_DIR}/Boltz/pdbs" \
+  --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
   --out-csv "${OUTPUT_DIR}/dockQ.csv"
 
 # ==============================================================================
@@ -205,10 +209,10 @@ echo -e "\nRelaxing model PDBs and computing Rosetta metrics" >> "${LOG_DIR}/log
 python compute_rosetta_metrics.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --out-csv "${OUTPUT_DIR}/rosetta_metrics.csv" \
-  --input af3="${OUTPUT_DIR}/AF3/pdbs" \
-  --input boltz1="${OUTPUT_DIR}/Boltz/pdbs" \
-  --input colab="${OUTPUT_DIR}/ColabFold/pdbs" \
-  --input af2="${OUTPUT_DIR}/AF2/pdbs" \
+  --folder af3:"${OUTPUT_DIR}/AF3/pdbs" \
+  --folder boltz1:"${OUTPUT_DIR}/Boltz/pdbs" \
+  --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
+  --folder af2:"${OUTPUT_DIR}/AF2/pdbs" \
 
 END_TIME=$(date +%s)
 echo "Structures relaxed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
