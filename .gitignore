@@ -1,7 +1,6 @@
 example_outputs/
 example_output/
 example_input_overwrite/
-example_submission_overwrite.sh
 .empty/
 *.err
 *.out
