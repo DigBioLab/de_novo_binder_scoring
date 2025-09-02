@@ -29,7 +29,7 @@ chmod +x ./functions/DAlphaBall.gcc
 Convert PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
 
 ```bash
-python process_inputs.py   --input_pdbs ./example_input/input_pdbs   --output_dir ./outputs
+python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir ./outputs
 ```
 
 - Binder is expected as **chain A** (`A:no_msa` by default).  
@@ -202,5 +202,33 @@ If you use this code, please cite:
 
 **Predicting Experimental Success in De Novo Binder Design: A Meta-Analysis of 3,766 Experimentally Characterised Binders**. *bioRxiv* (2025).  
 DOI: [10.1101/2025.08.14.670059v1](https://www.biorxiv.org/content/10.1101/2025.08.14.670059v1)
+
+---
+
+### Additional citations
+
+If you use any of the following tools or methods, please also cite:  
+
+- **ColabFold (MSA generation and/or structure prediction)**  
+  [10.1038/s41592-022-01488-1](https://www.nature.com/articles/s41592-022-01488-1)  
+
+- **AF2 initial guess**  
+  [https://doi.org/10.1038/s41467-023-38328-5](https://doi.org/10.1038/s41467-023-38328-5)  
+
+- **Boltz-1**  
+  [https://www.biorxiv.org/content/10.1101/2024.11.19.624167v4](https://www.biorxiv.org/content/10.1101/2024.11.19.624167v4)  
+
+- **Boltz-2**  
+  [https://www.biorxiv.org/content/10.1101/2025.06.14.659707v1](https://www.biorxiv.org/content/10.1101/2025.06.14.659707v1)  
+
+- **AF3**  
+  [https://doi.org/10.1038/s41586-024-07487-w](https://doi.org/10.1038/s41586-024-07487-w)  
+
+- **ipSAE**  
+  [https://doi.org/10.1101/2025.02.10.637595](https://doi.org/10.1101/2025.02.10.637595)  
+
+- **DockQ**  
+  [https://doi.org/10.1093/bioinformatics/btae586](https://doi.org/10.1093/bioinformatics/btae586)  
+
 
 
