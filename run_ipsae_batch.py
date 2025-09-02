@@ -120,40 +120,45 @@ def locate_files(bid: str, index) -> Tuple[List[Tuple[str,str,str,str]], List[st
     variants = [bid, bid.lower(), bid.upper()]
 
     # Boltz1
+    b_found = False
     for v in variants:
+        print(v)
         b = index['boltz'].get(v)
         if b and 'structure' in b and 'confidence' in b:
             valid.append((bid, 'boltz', b['structure'], b['confidence']))
+            b_found = True
             break
-    else:
-        if index['boltz']:
-            missing.append(f"[{bid}] boltz missing structure or confidence files")
+    print(b_found)
+    if index['boltz'] and not b_found:
+        # print(b)
+        # print(v)
+        print(f"helle {bid}")
+        missing.append(f"[{bid}] boltz missing structure or confidence files")
 
     # AF3
+    a_found = False
     for v in variants:
         a = index['af3'].get(v)
         if a and 'structure' in a and 'confidence' in a:
             valid.append((bid, 'af3', a['structure'], a['confidence']))
+            a_found = True
             break
-    else:
-        if index['af3']:
-            missing.append(f"[{bid}] af3 missing structure or confidence files")
+    if index['af3'] and not a_found:
+        missing.append(f"[{bid}] af3 missing structure or confidence files")
 
     # Colab
+    c_found = False
     for v in variants:
         c = index['colab'].get(v, {})
         jsons = c.get('jsons', [])
         pdbs = c.get('pdbs', [])
         if jsons and pdbs:
-            if len(jsons) > 1:
-                missing.append(f"[{bid}] WARNING: multiple Colab JSONs, using first")
-            if len(pdbs) > 1:
-                missing.append(f"[{bid}] WARNING: multiple Colab PDBs, using first")
             valid.append((bid, 'colab', pdbs[0], jsons[0]))
+            c_found = True
             break
-    else:
-        if index['colab']:
-            missing.append(f"[{bid}] colab missing JSON or PDB files")
+    if index['colab'] and not c_found:
+        missing.append(f"[{bid}] colab missing JSON or PDB files")
+
 
     return valid, missing
 
