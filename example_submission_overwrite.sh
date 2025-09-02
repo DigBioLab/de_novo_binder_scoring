@@ -36,7 +36,7 @@ AF3_WEIGHTS="/dtu/projects/RFdiffusion/AF3/3.0.0/model_parameter"
 OUTPUT_DIR="./example_output_overwrite"
 INPUT_PDBS="./example_input_overwrite/input_pdbs"
 INPUT_CSV="./example_input/input_overwrite_example.csv"
-SCRIPT_DIR="/work3/anryg/de_novo_binder_scoring"
+SCRIPT_DIR="de_novo_binder_scoring"
 
 
 LOG_DIR="${OUTPUT_DIR}/log"
