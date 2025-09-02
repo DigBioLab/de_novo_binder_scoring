@@ -370,13 +370,13 @@ def convert_cif_to_pdb(cif_path, pdb_path, model_id=None):
     io.set_structure(structure)
     io.save(pdb_path)
 
-def extract_boltz1_metrics(predictions_folder: str, boltz1_dir: str) -> pd.DataFrame:
+def extract_boltz1_metrics(predictions_folder: str, boltz_dir: str) -> pd.DataFrame:
     """
     predictions_folder should look like:
       Boltz/outputs/<binder_id>/predictions/*_model_*.json (and *_model_0.cif)
     """
     rows = []
-    pdb_dir = os.path.join(boltz1_dir, "pdbs")
+    pdb_dir = os.path.join(boltz_dir, "pdbs")
     _ensure_dir(pdb_dir)
 
     metrics = ["iptm", "complex_plddt", "complex_iplddt", "complex_pde", "complex_ipde"]
@@ -426,9 +426,9 @@ def extract_boltz1_metrics(predictions_folder: str, boltz1_dir: str) -> pd.DataF
         row = {"binder_id": binder_id}
         for m in metrics:
             avg, std = mean_std(all_vals[m])
-            row[f"boltz1_{m}_avg"]     = avg
-            row[f"boltz1_{m}_std"]     = std
-            row[f"boltz1_{m}_model_0"] = model0_vals[m]
+            row[f"boltz_{m}_avg"]     = avg
+            row[f"boltz_{m}_std"]     = std
+            row[f"boltz_{m}_model_0"] = model0_vals[m]
         rows.append(row)
 
         cif_path = os.path.join(subdir, f"{binder_id}_model_0.cif")
@@ -437,16 +437,16 @@ def extract_boltz1_metrics(predictions_folder: str, boltz1_dir: str) -> pd.DataF
             try:
                 convert_cif_to_pdb(cif_path, out_pdb, binder_id)
             except Exception as e:
-                print(f"[boltz1] WARN CIF→PDB {binder_id}: {e}")
+                print(f"[boltz] WARN CIF→PDB {binder_id}: {e}")
 
     # postprocess PDBs (combine chains too)
     postprocess_pdb_dir(pdb_dir, combine=True)
 
     df_out = pd.DataFrame(rows)
-    out_csv = os.path.join(boltz1_dir, "boltz1_metrics.csv")
+    out_csv = os.path.join(boltz_dir, "boltz_metrics.csv")
     if not df_out.empty:
         df_out.to_csv(out_csv, index=False)
-        print(f"[boltz1] wrote {out_csv}")
+        print(f"[boltz] wrote {out_csv}")
     return df_out
 
 # =========================
@@ -639,7 +639,7 @@ def parse_args():
                    help="Comma-separated list among: colab,boltz1,af3,af2")
     # Optional overrides (defaults derive from output_dir)
     p.add_argument("--colab_dir", default=None, help="Override ColabFold base dir (default: <output_dir>/ColabFold)")
-    p.add_argument("--boltz1_dir", default=None, help="Override Boltz1 base dir (default: <output_dir>/Boltz)")
+    p.add_argument("--boltz_dir", default=None, help="Override Boltz base dir (default: <output_dir>/Boltz)")
     p.add_argument("--af3_dir", default=None, help="Override AF3 base dir (default: <output_dir>/AF3)")
     p.add_argument("--af2_dir", default=None, help="Override AF2 base dir (default: <output_dir>/AF2)")
     return p.parse_args()
@@ -651,7 +651,7 @@ def main():
 
     # Resolve default model dirs
     colab_dir = args.colab_dir or os.path.join(outdir, "ColabFold")
-    boltz_dir = args.boltz1_dir or os.path.join(outdir, "Boltz")
+    boltz_dir = args.boltz_dir or os.path.join(outdir, "Boltz")
     af3_dir   = args.af3_dir   or os.path.join(outdir, "AF3")
     af2_dir   = args.af2_dir   or os.path.join(outdir, "AF2")
 
