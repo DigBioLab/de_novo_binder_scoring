@@ -292,7 +292,10 @@ def run_all_models():
                     }
                     print(f"Target {hold}: baseline {baseline_ap:.3f}, greedy {ap:.3f}")
 
-            out_path = Path(OUTPUT_DIR) / f"nested_greedy_{mode}_all.pkl"
+            if mode == 'all_single': 
+                out_path = Path(OUTPUT_DIR) / f"nested_greedy_single_all.pkl"
+            else:
+                out_path = Path(OUTPUT_DIR) / f"nested_greedy_interaction_all.pkl"
             with open(out_path, "wb") as f:
                 pickle.dump(results, f)
             print(f"Saved to {out_path}")
