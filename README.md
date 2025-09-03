@@ -34,7 +34,7 @@ chmod +x ./functions/DAlphaBall.gcc
 Convert input PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
 
 ```bash
-python process_inputs.py \
+python ./scripts/process_inputs.py \
   --input_pdbs ./example_input/input_pdbs \
   --output_dir ./example_output
 ```
@@ -54,7 +54,7 @@ Be careful that your input files do not sanitize to the same name (e.g., `abc.pd
 You can overwrite columns in `run.csv` for customization using the `--mode` flag:
 
 ```bash
-python process_inputs.py --mode {pdb_only, seq_only_csv, hybrid}
+python ./scripts/process_inputs.py --mode {pdb_only, seq_only_csv, hybrid}
 ```
 
 * `pdb_only` (default): sequences and other columns are automatically inferred from input PDBs.
@@ -63,7 +63,7 @@ python process_inputs.py --mode {pdb_only, seq_only_csv, hybrid}
 Example:
 
 ```bash
-python process_inputs.py \
+python ./scripts/process_inputs.py \
   --mode seq_only_csv \
   --input_csv ./example_input/input_sequence_only.csv \
   --output_dir ./example_output_seq
@@ -77,7 +77,7 @@ python process_inputs.py \
 Example:
 
 ```bash
-python process_inputs.py \
+python ./scripts/process_inputs.py \
   --mode hybrid \
   --input_pdbs ./example_input/input_pdbs \
   --input_csv ./example_input/input_overwrite.csv \
@@ -93,7 +93,7 @@ python process_inputs.py \
 Generate MSAs using ColabFold (MMseqs2). Requires a separate ColabFold installation:
 
 ```bash
-colabfold_batch ./example_outputs/unique_msa ./example_outputs/unique_msa/msa --msa-only
+colabfold_batch ./example_output/unique_msa ./example_output/unique_msa/msa --msa-only
 ```
 
 ---
@@ -103,9 +103,9 @@ colabfold_batch ./example_outputs/unique_msa ./example_outputs/unique_msa/msa --
 Generate inputs for structure prediction models (AF3, Boltz, ColabFold):
 
 ```bash
-python generate_model_inputs.py \
-  --run-csv ./example_outputs/run.csv \
-  --out-dir ./example_outputs
+python ./scripts/generate_model_inputs.py \
+  --run-csv ./example_output/run.csv \
+  --out-dir ./example_output
 ```
 
 ---
@@ -114,9 +114,9 @@ python generate_model_inputs.py \
 
 ```bash
 python compute_rosetta_metrics.py \
-  --run-csv ./example_outputs/run.csv \
-  --out-csv ./example_outputs/input_rosetta_metrics.csv \
-  --folder input:./example_outputs/input_pdbs
+  --run-csv ./example_output/run.csv \
+  --out-csv ./example_output/input_rosetta_metrics.csv \
+  --folder input:./example_output/input_pdbs
 ```
 
 ---
@@ -127,7 +127,7 @@ Run AF2 prediction on relaxed PDBs:
 
 ```bash
 predict.py \
-  -pdbdir ./example_outputs/input_pdbs/relaxed_pdbs \
+  -pdbdir ./example_output/input_pdbs/relaxed_pdbs \
   -scorefilename out.sc \
   -outsilent af2.silent
 ```
@@ -137,14 +137,14 @@ predict.py \
 ### 6. Run ColabFold
 
 ```bash
-colabfold_batch ./example_outputs/ColabFold/input_folder ./example_outputs/ColabFold/ptm_output \
+colabfold_batch ./example_output/ColabFold/input_folder ./example_output/ColabFold/ptm_output \
   --calc-extra-ptm --num-recycle 3 --num-models 3
 ```
 
 Optional: remove generated PNGs:
 
 ```bash
-find ./example_outputs/ColabFold/ptm_output -type f -name "*.png" -exec rm -f {} \;
+find ./example_output/ColabFold/ptm_output -type f -name "*.png" -exec rm -f {} \;
 ```
 
 ---
@@ -152,11 +152,11 @@ find ./example_outputs/ColabFold/ptm_output -type f -name "*.png" -exec rm -f {}
 ### 7. Run Boltz
 
 ```bash
-boltz predict ./example_outputs/Boltz/input_folder \
+boltz predict ./example_output/Boltz/input_folder \
   --recycling_steps 10 \
   --diffusion_samples 3 \
   --write_full_pae \
-  --out_dir ./example_outputs/Boltz
+  --out_dir ./example_output/Boltz
 ```
 
 ---
@@ -165,12 +165,12 @@ boltz predict ./example_outputs/Boltz/input_folder \
 
 ```bash
 python run_alphafold.py \
-  --input_dir=./example_outputs/AF3/input_folder \
+  --input_dir=./example_output/AF3/input_folder \
   --model_dir=/path/to/alphafold3_weights \
   --db_dir=/path/to/alphafold3_database \
   --run_data_pipeline=False \
   --num_diffusion_samples=3 \
-  --output_dir=./example_outputs/AF3/outputs
+  --output_dir=./example_output/AF3/outputs
 ```
 
 ---
@@ -178,9 +178,9 @@ python run_alphafold.py \
 ### 9. Extract confidence metrics
 
 ```bash
-python extract_confidence_metrics.py \
-  --run-csv ./example_outputs/run.csv \
-  --out-dir ./example_outputs
+python ./scripts/extract_confidence_metrics.py \
+  --run-csv ./example_output/run.csv \
+  --out-dir ./example_output
 ```
 
 ---
@@ -188,16 +188,13 @@ python extract_confidence_metrics.py \
 ### 10. Compute ipSAE and interface confidence metrics
 
 ```bash
-python run_ipsae_batch.py \
-  --run-csv ./example_outputs/run.csv \
-  --out-csv ./example_outputs/ipsae_and_ipae.csv \
-  --af3-dir ./example_outputs/AF3 \
-  --boltz1-dir ./example_outputs/Boltz \
-  --colab-dir ./example_outputs/ColabFold \
-  --ipsae-script-path ./ipsae_w_ipae.py \
-  --pae-cutoff 10 \
-  --dist-cutoff 10 \
-  --backup
+python ./scripts/run_ipsae_batch.py \
+  --run-csv ./example_output/run.csv \
+  --out-csv ./example_output/ipsae_and_ipae.csv \
+  --af3-dir ./example_output/AF3 \
+  --boltz-dir ./example_output/Boltz \
+  --colab-dir ./example_output/ColabFold \
+  --ipsae-script-path ./scripts/ipsae_w_ipae.py
 ```
 
 ---
@@ -205,16 +202,14 @@ python run_ipsae_batch.py \
 ### 11. Compute DockQ
 
 ```bash
-python dockQ.py \
-  --run-csv ./example_outputs/run.csv \
-  --input-pdbs ./example_outputs/input_pdbs/ \
-  --folder af3:./example_outputs/AF3/pdbs/ \
-  --folder af2:./example_outputs/AF2/pdbs/ \
-  --folder boltz:./example_outputs/Boltz/pdbs/ \
-  --folder colab:./example_outputs/ColabFold/pdbs/ \
-  --out-csv ./example_outputs/dockQ.csv \
-  --backup \
-  --verbose
+python ./scripts/dockQ.py \
+  --run-csv ./example_output/run.csv \
+  --input-pdbs ./example_output/input_pdbs/ \
+  --folder af3:./example_output/AF3/pdbs/ \
+  --folder af2:./example_output/AF2/pdbs/ \
+  --folder boltz:./example_output/Boltz/pdbs/ \
+  --folder colab:./example_output/ColabFold/pdbs/ \
+  --out-csv ./example_output/dockQ.csv 
 ```
 
 ---
@@ -222,14 +217,14 @@ python dockQ.py \
 ### 12. Compute Rosetta metrics for model PDBs
 
 ```bash
-python compute_rosetta_metrics.py \
-  --run-csv ./example_outputs/run.csv \
-  --out-csv ./example_outputs/rosetta_metrics.csv \
-  --folder af3:./example_outputs/AF3/pdbs/ \
-  --folder af2:./example_outputs/AF2/pdbs/ \
-  --folder boltz1:./example_outputs/Boltz/pdbs/ \
-  --folder colab:./example_outputs/ColabFold/pdbs/ \
-  --folder input:./example_outputs/input_pdbs/
+python ./scripts/compute_rosetta_metrics.py \
+  --run-csv ./example_output/run.csv \
+  --out-csv ./example_output/rosetta_metrics.csv \
+  --folder af3:./example_output/AF3/pdbs/ \
+  --folder af2:./example_output/AF2/pdbs/ \
+  --folder boltz1:./example_output/Boltz/pdbs/ \
+  --folder colab:./example_output/ColabFold/pdbs/ \
+  --folder input:./example_output/input_pdbs/
 ```
 
 ---
@@ -237,13 +232,13 @@ python compute_rosetta_metrics.py \
 ### 13. Compute RMSDs
 
 ```bash
-python rmsd.py \
-  --folder input:./example_outputs/input_pdbs/ \
-  --folder af3:./example_outputs/AF3/pdbs/ \
-  --folder af2:./example_outputs/AF2/pdbs/ \
-  --folder boltz1:./example_outputs/Boltz/pdbs/ \
-  --folder colab:./example_outputs/ColabFold/pdbs/ \
-  --out-csv ./example_outputs/rmsd.csv
+python ./scripts/rmsd.py \
+  --folder input:./example_output/input_pdbs/ \
+  --folder af3:./example_output/AF3/pdbs/ \
+  --folder af2:./example_output/AF2/pdbs/ \
+  --folder boltz1:./example_output/Boltz/pdbs/ \
+  --folder colab:./example_output/ColabFold/pdbs/ \
+  --out-csv ./example_output/rmsd.csv
 ```
 
 ---
@@ -262,7 +257,7 @@ echo '{"input": "'$OUTPUT_DIR/input_pdbs'", "af2": "'$OUTPUT_DIR/AF2/pdbs'", "co
 
 # Run PyMOL analysis script
 cd $OUTPUT_DIR
-python -m pymol -c -d "run ../pymol_metrics.py"
+python -m pymol -c -d "run ../scripts/pymol_metrics.py"
 ```
 
 ---
