@@ -2,14 +2,11 @@
 import os
 import csv
 import argparse
+import pandas as pd
+from pathlib import Path
 from DockQ.DockQ import load_PDB, run_on_all_native_interfaces
 
-
-
 def calculate_scores(native_path, model_path, chain_map):
-    """
-    Run DockQ: compare model to native (input) and return total score.
-    """
     try:
         native_structure = load_PDB(native_path)
         model_structure  = load_PDB(model_path)
@@ -26,14 +23,7 @@ def calculate_scores(native_path, model_path, chain_map):
         print(f"[dockq] run error on {model_path}: {e}")
         return None
 
-
-def analyze_against_input(input_folder: str, models: dict, output_csv: str, chain_map=None):
-    """
-    For each binder in input_folder (reference), compute DockQ against
-    any provided model folders.
-
-    models = { "af2": "/path/to/af2/pdbs", "cf": "/path/to/colab/pdbs" }
-    """
+def analyze_against_input(input_folder: str, models: dict, chain_map=None):
     if chain_map is None:
         chain_map = {"A": "A", "B": "B"}
 
@@ -66,20 +56,9 @@ def analyze_against_input(input_folder: str, models: dict, output_csv: str, chai
 
         rows.append(row)
 
-    # union of all column names
-    fieldnames = ["binder_id"] + [f"{p}_dockQ" for p in models.keys()]
-
-    with open(output_csv, "w", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=fieldnames)
-        w.writeheader()
-        w.writerows(rows)
-    print(f"[ok] CSV written: {output_csv}")
-
+    return pd.DataFrame(rows)
 
 def parse_folder_kv(value):
-    """
-    Parse --folder flags of the form name:path
-    """
     if ":" not in value:
         raise argparse.ArgumentTypeError("Folder must be given as name:path")
     name, path = value.split(":", 1)
@@ -108,19 +87,49 @@ def parse_args():
         type=parse_folder_kv,
         help='Repeatable. Format "name:path". Example: --folder af3:/path/to/AF3/pdbs'
     )
-    ap.add_argument("--out-csv", required=True, help="Destination CSV path.")
+    ap.add_argument("--out-csv", required=True, help="Destination CSV path for standalone output")
+    ap.add_argument("--run-csv", help="Optional run CSV to merge results into")
     ap.add_argument("--mapA", default="A", help="Map input chain A to this chain id in models")
     ap.add_argument("--mapB", default="B", help="Map input chain B to this chain id in models")
+    ap.add_argument("--backup", action="store_true", help="Write run.csv.bak before overwrite")
+    ap.add_argument("--verbose", action="store_true", help="Print more info while processing")
     return ap.parse_args()
 
 def main():
     args = parse_args()
-
-    # Convert list of (name, path) to dict
     models = dict(args.folder)
-
     chain_map = {"A": args.mapA, "B": args.mapB}
-    analyze_against_input(args.input_pdbs, models, args.out_csv, chain_map)
+
+    # Compute DockQ scores
+    res_df = analyze_against_input(args.input_pdbs, models, chain_map)
+
+    # Write standalone CSV
+    os.makedirs(os.path.dirname(os.path.abspath(args.out_csv)), exist_ok=True)
+    res_df.to_csv(args.out_csv, index=False)
+    if args.verbose:
+        print(f"[ok] Standalone CSV written: {args.out_csv} ({len(res_df)} rows)")
+
+    # Merge into run CSV if provided
+    if args.run_csv:
+        run_csv_path = Path(args.run_csv)
+        run_df = pd.read_csv(run_csv_path, dtype=str)
+
+        if "binder_id" not in run_df.columns:
+            raise SystemExit("--run-csv must contain a 'binder_id' column")
+
+        # Backup original run CSV if requested
+        if args.backup:
+            bak_path = run_csv_path.with_suffix(run_csv_path.suffix + ".bak")
+            run_df.to_csv(bak_path, index=False)
+            if args.verbose:
+                print(f"[backup] {run_csv_path} -> {bak_path}")
+
+        # Merge on 'binder_id', new columns overwrite old ones
+        merged_df = run_df.merge(res_df, on="binder_id", how="left")
+
+        merged_df.to_csv(run_csv_path, index=False)
+        if args.verbose:
+            print(f"[ok] Updated {run_csv_path} with merged DockQ columns ({len(merged_df)} rows)")
 
 if __name__ == "__main__":
     main()

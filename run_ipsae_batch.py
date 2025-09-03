@@ -122,17 +122,15 @@ def locate_files(bid: str, index) -> Tuple[List[Tuple[str,str,str,str]], List[st
     # Boltz1
     b_found = False
     for v in variants:
-        print(v)
+     
         b = index['boltz'].get(v)
         if b and 'structure' in b and 'confidence' in b:
             valid.append((bid, 'boltz', b['structure'], b['confidence']))
             b_found = True
             break
-    print(b_found)
+
     if index['boltz'] and not b_found:
-        # print(b)
-        # print(v)
-        print(f"helle {bid}")
+      
         missing.append(f"[{bid}] boltz missing structure or confidence files")
 
     # AF3
@@ -393,6 +391,7 @@ def main():
     if args.backup:
         bak = run_csv_path.with_suffix(run_csv_path.suffix + '.bak')
         run_df.to_csv(bak, index=False)
+
         if args.verbose:
             print(f"Backed up to {bak}")
 
@@ -418,8 +417,16 @@ def main():
             all_notes.extend(notes)
 
     res_df = pd.DataFrame.from_dict(collected, orient='index')
-    res_df.to_csv(args.out_csv,index=False)
+    res_df.reset_index(inplace=True)
+    res_df = res_df.rename(columns={'index': 'binder_id'})
+    res_df.to_csv(args.out_csv, index=False)
     print(f"Written metrics to {args.out_csv} with {len(res_df)} rows and {len(res_df.columns)} columns")
+
+    merged_df = run_df.merge(res_df, on='binder_id', how='left')
+    merged_df.to_csv(run_csv_path, index=False)
+    print(f"Updated {run_csv_path} with {len(merged_df)} rows and {len(merged_df.columns)} columns")
+
+
     
 
     if all_notes:

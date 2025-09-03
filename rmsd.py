@@ -5,6 +5,8 @@ import csv
 import glob
 import tempfile
 from itertools import combinations
+from pathlib import Path
+import pandas as pd
 
 # PyRosetta
 import pyrosetta as pr
@@ -93,7 +95,6 @@ def parse_folder_kv(value):
 
 # ---------------------------
 # Main
-
 def main():
     ap = argparse.ArgumentParser(description="Pairwise RMSDs across model folders (AlignChainMover + RMSDMetric).")
     ap.add_argument(
@@ -104,12 +105,14 @@ def main():
         help='Repeatable. Format "name:path". Example: --folder af3:/path/to/AF3/pdbs'
     )
     ap.add_argument("--out-csv", required=True, help="Output CSV path for RMSD table")
+    ap.add_argument("--run-csv", help="Optional run CSV to merge results into")
     ap.add_argument("--binder-chain", default="A", help="Binder chain letter (default: A)")
     ap.add_argument("--target-chain", default="B", help="Target chain letter (default: B)")
     ap.add_argument("--bb-only", action="store_true", help="Backbone-only RMSD")
+    ap.add_argument("--backup", action="store_true", help="Write run.csv.bak before overwrite")
+    ap.add_argument("--verbose", action="store_true", help="Print more info while processing")
     args = ap.parse_args()
 
-    # Init PyRosetta once
     pr.init('-ignore_unrecognized_res -ignore_zero_occupancy -mute all -corrections::beta_nov16 true')
 
     model_folders = dict(args.folder)  # {model_name: path}
@@ -126,7 +129,6 @@ def main():
     all_cols = set(["binder_id"])
     bind_ch = args.binder_chain
     tgt_ch = args.target_chain
-
     tmpdir = tempfile.mkdtemp(prefix="rmsd_align_tmp_")
 
     try:
@@ -135,38 +137,32 @@ def main():
                 continue
 
             row = {"binder_id": binder_id}
-
             for (m1, p1), (m2, p2) in combinations(sorted(model_to_pdb.items()), 2):
-                # 1) "Complex" RMSD over binder+target after aligning by binder chain
+                # Complex RMSD
                 try:
                     tmp_p2_A = os.path.join(tmpdir, f"{binder_id}__{m2}__Aalign.pdb")
                     align_by_chain(p1, p2, ref_chain=bind_ch, mob_chain=bind_ch, out_path=tmp_p2_A)
                     r_complex = rmsd_between(p1, tmp_p2_A, chains_str=f"{bind_ch},{tgt_ch}", bb_only=args.bb_only)
-                    col_complex = f"RMSD_complex_{m1}_{m2}"
-                    row[col_complex] = round(r_complex, 3)
-                    all_cols.add(col_complex)
+                    row[f"RMSD_complex_{m1}_{m2}"] = round(r_complex, 3)
+                    all_cols.add(f"RMSD_complex_{m1}_{m2}")
                 except Exception as e:
-                    col_complex = f"RMSD_complex_{m1}_{m2}"
-                    row[col_complex] = f"ERR:{e}"
-                    all_cols.add(col_complex)
+                    row[f"RMSD_complex_{m1}_{m2}"] = f"ERR:{e}"
+                    all_cols.add(f"RMSD_complex_{m1}_{m2}")
 
-                # 2) RMSD of binder chain after aligning by target chain
+                # Binder chain RMSD after aligning by target
                 try:
                     tmp_p2_B = os.path.join(tmpdir, f"{binder_id}__{m2}__Balign.pdb")
                     align_by_chain(p1, p2, ref_chain=tgt_ch, mob_chain=tgt_ch, out_path=tmp_p2_B)
                     r_a_after_b = rmsd_between(p1, tmp_p2_B, chains_str=bind_ch, bb_only=args.bb_only)
-                    col_ab = f"RMSD_chA_aft_chB_align_{m1}_{m2}"
-                    row[col_ab] = round(r_a_after_b, 3)
-                    all_cols.add(col_ab)
+                    row[f"RMSD_chA_aft_chB_align_{m1}_{m2}"] = round(r_a_after_b, 3)
+                    all_cols.add(f"RMSD_chA_aft_chB_align_{m1}_{m2}")
                 except Exception as e:
-                    col_ab = f"RMSD_chA_aft_chB_align_{m1}_{m2}"
-                    row[col_ab] = f"ERR:{e}"
-                    all_cols.add(col_ab)
+                    row[f"RMSD_chA_aft_chB_align_{m1}_{m2}"] = f"ERR:{e}"
+                    all_cols.add(f"RMSD_chA_aft_chB_align_{m1}_{m2}")
 
             rows.append(row)
 
     finally:
-        # Leave temp dir/files if you want to debug; otherwise try to clean.
         try:
             for f in glob.glob(os.path.join(tmpdir, "*.pdb")):
                 os.remove(f)
@@ -174,7 +170,7 @@ def main():
         except Exception:
             pass
 
-    # Write CSV
+    # Write standalone output CSV
     headers = ["binder_id"] + sorted([c for c in all_cols if c != "binder_id"])
     os.makedirs(os.path.dirname(os.path.abspath(args.out_csv)), exist_ok=True)
     with open(args.out_csv, "w", newline="") as f:
@@ -182,6 +178,27 @@ def main():
         w.writeheader()
         for r in rows:
             w.writerow(r)
+    if args.verbose:
+        print(f"Written RMSD metrics to {args.out_csv} with {len(rows)} rows and {len(headers)} columns")
+
+    # Merge into run CSV if provided
+    if args.run_csv:
+        run_csv_path = Path(args.run_csv)
+        run_df = pd.read_csv(run_csv_path, dtype=str)
+        if "binder_id" not in run_df.columns:
+            raise SystemExit("--run-csv must contain a 'binder_id' column")
+
+        res_df = pd.DataFrame(rows).fillna("")
+        if args.backup:
+            bak = run_csv_path.with_suffix(run_csv_path.suffix + ".bak")
+            run_df.to_csv(bak, index=False)
+            if args.verbose:
+                print(f"Backed up {run_csv_path} to {bak}")
+
+        merged_df = run_df.merge(res_df, on="binder_id", how="left")
+        merged_df.to_csv(run_csv_path, index=False)
+        if args.verbose:
+            print(f"Updated {run_csv_path} with merged RMSD columns")
 
 if __name__ == "__main__":
     main()

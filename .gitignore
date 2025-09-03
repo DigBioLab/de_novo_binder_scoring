@@ -3,3 +3,7 @@ example_input_overwrite/
 *.err
 *.out
 example_output_overwrite
+camsol_intrinsic_linear.py
+example_run_with_good_paths.sh
+example_submission_w_camsol.sh
+example_outputs
