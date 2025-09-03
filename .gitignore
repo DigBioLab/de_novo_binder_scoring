@@ -1,9 +1,6 @@
-example_outputs/
 example_output/
 example_input_overwrite/
 .empty/
 *.err
 *.out
 example_output_overwrite
-example_submission_w_camsol.sh
-camsol_intrinsic_linear.py

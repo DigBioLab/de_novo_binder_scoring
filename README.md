@@ -18,9 +18,9 @@ conda activate binder_scoring_env
 chmod +x ./functions/DAlphaBall.gcc
 ```
 
-⚠️ **Note**: This repo requires [PyRosetta](https://www.pyrosetta.org/downloads), which requires a license for commercial use.
+**Note 1**: This repo uses [PyRosetta](https://www.pyrosetta.org/downloads) for two scripts (`compute_rosetta_metrics.py` and `rmsd.py`), which requires a license for commercial use.
 
-⚠️ **Note**: This repo requires enviroments and licenses to run the structure predictions tools - these blocks are marked in the `example_run.sh` script.
+**Note 2**: The used structure predictions tools (AF2 initial guess, ColabFold, Boltz and AF3) require seperate installations - these blocks are marked in the `example_run.sh` script.
 
 ---
 
@@ -28,10 +28,10 @@ chmod +x ./functions/DAlphaBall.gcc
 
 ### 1. Process inputs
 
-Convert PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
+Convert input PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
 
 ```bash
-python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir ./outputs
+python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir ./example_outputs
 ```
 
 - Binder is expected as **chain A** (`A:no_msa` by default).  
@@ -41,30 +41,34 @@ python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir 
 
 #### Input Modes
 
-You can control how sequences are taken into the run CSV with the `--mode` flag:
+You can overwrite columns in `run.csv` for customization (e.g custom target sequences, target names or MSA settings) using the `--mode` flag:
 
 ```bash
-python process_inputs.py --mode {hybrid,pdb_only,seq_only_csv}
+python process_inputs.py --mode {pdb_only,seq_only_csv,hybrid}
 ```
 
 -----
 
 `pdb_only` (default)
 
-Sequences are extracted **only from the PDB files**.
-The run CSV will be updated to reflect what is found in the structures.
-Any sequences specified in the CSV are ignored.
+Sequences columns and all other columned are automatically infered from the input PDB files.
 
 -----
 
 `seq_only_csv`
 
-Sequences are taken **only from the CSV**.
-Useful if you want full control over sequences (e.g., curated or designed sequences).
+Sequences and all other columns are taken only from the CSV.
+Useful if you don't have input PDBs (e.g., curated or designed sequences).
+
+Exammple: 
+
+```bash
+python process_inputs.py --mode seq_only_csv --input_csv ./example_input/input_sequence_only.csv --output_dir ./example_outputs_seq
+```
 
 -----
 
-`hybrid` (possibility of overwriting PDB extracted sequence of target chains)
+`hybrid` (possibility of overwriting PDB extracted sequence of target chains and other columns in `run.csv`)
 
 In this mode, by default, sequences are extracted from the PDBs.
 However one can also ***overwrite the PDB extracted seqeunces***, as well as any other columns. To overwrite the PDB extracted sequences with custom sequence, the input CSV must specify both:
@@ -73,6 +77,12 @@ However one can also ***overwrite the PDB extracted seqeunces***, as well as any
   * `target_subchain_X_seq` (one column per subchain that one wants to overwrite, e.g., `target_subchain_D_seq`)
 
 Then the CSV-provided sequence will overwrite the extracted version for that chain.
+
+Exammple: 
+
+```bash
+python process_inputs.py --mode hybrid --input_pdbs ./example_input/input_pdbs --input_csv ./example_input/input_overwrite.csv --output_dir ./example_outputs_overwrite
+```
 
 **Additional behavior in hybrid mode:**
 
@@ -86,10 +96,10 @@ Then the CSV-provided sequence will overwrite the extracted version for that cha
 
 ### 2. Generate MSAs
 
-We used the ColabFold server (MMseqs2) for MSAs. Example (local ColabFold):
+We used the ColabFold server (MMseqs2) for MSAs generation, this will require a seperate ColabFold installation. Example:
 
 ```bash
-colabfold_batch ./outputs/unique_msa ./outputs/unique_msa/msa --msa-only
+colabfold_batch ./example_outputs/unique_msa ./example_outputs/unique_msa/msa --msa-only
 ```
 
 ---
@@ -99,7 +109,7 @@ colabfold_batch ./outputs/unique_msa ./outputs/unique_msa/msa --msa-only
 Generate input files for structure prediction models (AF3, Boltz-1/2, ColabFold):
 
 ```bash
-python generate_model_inputs.py   --csv_file ./outputs/run.csv   --out_dir ./outputs   --models af3 boltz colabfold
+python generate_model_inputs.py   --csv_file ./example_outputs/run.csv   --out_dir ./example_outputs   --models af3 boltz colabfold
 ```
 
 The individual structure prediction tools need to be installed independenly, an example how they can be run can be found in the example_run.sh
@@ -113,33 +123,33 @@ For AF2 initial guess the pdbs have the correct format to use them directly as a
 #### Extract model metrics
 ```bash
 python extract_confidence_metrics.py
---run_csv ./outputs/run.csv \
---output_dir ./outputs \
---colab_dir ./outputs/ColabFold \
---boltz_dir ./outputs/Boltz \
---af3_dir ./outputs/AF3 \
---af2_dir ./outputs/AF2
+--run_csv ./example_outputs/run.csv \
+--output_dir ./example_outputs/ \
+--colab_dir ./example_outputs/ColabFold \
+--boltz_dir ./example_outputs/Boltz \
+--af3_dir ./example_outputs/AF3 \
+--af2_dir ./example_outputs/AF2
 ```
 
 #### Compute ipSAE scores ([IPSAE](https://github.com/DunbrackLab/IPSAE)):
 ```bash
 python run_ipsae_batch.py
---run-csv ./outputs/run.csv \
---af3-dir ./outputs/AF3 \
---boltz-dir ./outputs/Boltz \
---colab-dir ./outputs/ColabFold
+--run-csv ./example_outputs/run.csv \
+--af3-dir ./example_outputs/AF3 \
+--boltz-dir ./example_outputs/Boltz \
+--colab-dir ./example_outputs/ColabFold
 ```
 
 #### Compute Rosetta metrics ([BindCraft-inspired](https://github.com/martinpacesa/BindCraft)):
 ```bash
 python compute_rosetta_metrics.py
---run_csv ./outputs/run.csv \
---out_csv ./outputs/rosetta_metrics.csv \
---input input=./outputs/input_pdbs \
---input af3=./outputs/AF3/pdbs \
---input boltz=./outputs/Boltz/pdbs \
---input colab=./outputs/ColabFold/pdbs \
---input af2=./outputs/AF2/pdbs
+--run-csv ./example_outputs/run.csv \
+--out-csv ./example_outputs/rosetta_metrics.csv \
+--folder input=./example_outputs/input_pdbs \
+--folder af3=./example_outputs/AF3/pdbs \
+--folder boltz=./example_outputs/Boltz/pdbs \
+--folder colab=./example_outputs/ColabFold/pdbs \
+--folder af2=./example_outputs/AF2/pdbs
 ```
 
 #### Compute RMSD (requires at least two sets of PDBs):
@@ -158,10 +168,10 @@ python rmsd.py \
 ```bash
 python dockQ.py \
   --input_pdbs ./outputs/input_pdbs/ \
-  --model af3:./outputs/AF3/pdbs/ \
-  --model af2:./outputs/AF2/pdbs/ \
-  --model boltz1:./outputs/Boltz/pdbs \
-  --model colab:./outputs/ColabFold/pdbs \
+  --folder af3:./outputs/AF3/pdbs/ \
+  --folder af2:./outputs/AF2/pdbs/ \
+  --folder boltz:./outputs/Boltz/pdbs \
+  --folder colab:./outputs/ColabFold/pdbs \
   --output_csv ./outputs/dockQ.csv
 ```
 

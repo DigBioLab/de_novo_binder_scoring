@@ -326,20 +326,32 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate inputs for selected models: AF3, Boltz, ColabFold."
     )
-    parser.add_argument("--run-csv", required=True, help="Path to the CSV produced earlier (with *_seq and msa_path_* columns).")
-    parser.add_argument("--out-dir", required=True, help="Base output directory where model subfolders will be created.")
-    parser.add_argument("--models", nargs="+", choices=["af3","boltz","colabfold"],
-                        help="Which models to generate inputs for. Default: all (af3 boltz colabfold).")
+    parser.add_argument(
+        "--run-csv",
+        required=True,
+        dest="run_csv",
+        help="Path to the CSV produced earlier (with *_seq and msa_path_* columns)."
+    )
+    parser.add_argument(
+        "--out-dir",
+        required=True,
+        dest="out_dir",
+        help="Base output directory where model subfolders will be created."
+    )
+    parser.add_argument(
+        "--models",
+        nargs="+",
+        choices=["af3", "boltz", "colabfold"],
+        help="Which models to generate inputs for. Default: all (af3 boltz colabfold)."
+    )
     args = parser.parse_args()
 
-    csv_file = args.csv_file
+    csv_file = args.run_csv
     out_base = args.out_dir
-    models = set(args.models) if args.models else {"af3","boltz","colabfold"}
-    
-    
-    print(f"=== Generate input files for selected models: {models} ===")
+    models = set(args.models) if args.models else {"af3", "boltz", "colabfold"}
 
-    # Create model-specific folders with the requested structure: <Model>/input_folder
+    print(f"=== Generate input files for selected models: {sorted(models)} ===")
+
     if "af3" in models:
         af3_dir = os.path.join(out_base, "AF3", "input_folder")
         _ensure_dir(af3_dir)

@@ -1,4 +1,0 @@
-Running 3 structures...
-
-Running AF2 initial guess
-AF2 initial guess completed in 267 seconds

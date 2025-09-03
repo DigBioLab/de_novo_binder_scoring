@@ -646,7 +646,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-    outdir = os.path.abspath(args.output_dir)
+    outdir = os.path.abspath(args.out_dir)
     models = [m.strip().lower() for m in args.models.split(",") if m.strip()]
 
     # Resolve default model dirs

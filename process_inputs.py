@@ -776,10 +776,8 @@ def main():
             shutil.copy2(pdb_file, output_pdbs)
         print(f"Copied {len(list(input_pdbs.glob('*.pdb')))} PDBs to {output_pdbs}")
 
-        print("=== Merge non-A → B, then rewrite/renumber/TER ===")
+    
         postprocess_pdbs_merge_then_renumber(str(output_pdbs))
-
-        print("=== Sanitize PDB filenames ===")
         san_map = sanitize_pdb_names_inplace(output_pdbs)
 
         run_csv = output_dir / "run.csv"
@@ -802,10 +800,9 @@ def main():
             shutil.copy2(pdb_file, output_pdbs)
         print(f"Copied {len(list(input_pdbs.glob('*.pdb')))} PDBs to {output_pdbs}")
 
-        print("=== Merge non-A → B, then rewrite/renumber/TER ===")
+
         postprocess_pdbs_merge_then_renumber(str(output_pdbs))
 
-        print("=== Sanitize PDB filenames ===")
         _ = sanitize_pdb_names_inplace(output_pdbs)
 
         run_csv = output_dir / "run.csv"
@@ -835,7 +832,6 @@ def main():
     unique_msa_dir.mkdir(parents=True, exist_ok=True)
     (unique_msa_dir / "msa").mkdir(parents=True, exist_ok=True)
 
-    print("=== Generate unique MSA FASTA files and update run.csv with msa_path_* ===")
     process_csv_and_generate_msa(str(run_csv), str(unique_msa_dir))
     print(f"MSA files under: {unique_msa_dir}")
 

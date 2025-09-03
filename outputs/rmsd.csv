@@ -1,4 +1,0 @@
-binder_id,RMSD_chA_aft_chB_align_af3_boltz,RMSD_chA_aft_chB_align_af3_colab,RMSD_chA_aft_chB_align_af3_input,RMSD_chA_aft_chB_align_boltz_colab,RMSD_chA_aft_chB_align_boltz_input,RMSD_chA_aft_chB_align_colab_input,RMSD_complex_af3_boltz,RMSD_complex_af3_colab,RMSD_complex_af3_input,RMSD_complex_boltz_colab,RMSD_complex_boltz_input,RMSD_complex_colab_input
-Pdl1_binder,1.538,1.453,1.628,1.289,1.975,1.647,1.112,1.352,1.432,1.289,1.638,1.559
-pMHC_binder_fused_target_chain,1.622,2.192,1.105,1.38,1.4,1.921,1.613,1.723,1.287,1.358,1.808,1.921
-pMHC_binder_multi_target_chain,1.393,2.192,0.0,1.673,1.393,2.192,1.312,1.723,0.0,1.409,1.312,1.723
