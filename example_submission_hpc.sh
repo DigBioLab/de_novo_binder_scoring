@@ -211,12 +211,12 @@ python run_ipsae_batch.py \
 echo -e "\nComputing dockQ" >> "${LOG_DIR}/log.txt"
 
 python dockQ.py \
-  --input_pdbs "${OUTPUT_DIR}/input_pdbs/" \
+  --input-pdbs "${OUTPUT_DIR}/input_pdbs/" \
   --folder af3:"${OUTPUT_DIR}/AF3/pdbs/" \
   --folder af2:"${OUTPUT_DIR}/AF2/pdbs/" \
   --folder boltz:"${OUTPUT_DIR}/Boltz/pdbs" \
   --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
-  --output_csv "${OUTPUT_DIR}/dockQ.csv"
+  --out-csv "${OUTPUT_DIR}/dockQ.csv"
 
 # ==============================================================================
 # 9. Computing Camsol

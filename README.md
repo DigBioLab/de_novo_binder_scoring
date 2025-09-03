@@ -35,8 +35,8 @@ python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir 
 ```
 
 - Binder is expected as **chain A** (`A:no_msa` by default).  
-- Non-A chains are merged into **B** (or split into virtual B, C, D … if chain breaks are detected).  
-- Unique target sequences are deduplicated (`target_1`, `target_2`, …).  
+- Non-A chains are merged into **B** in PDB for downstream analysis (Also works target chains of input are already merged).  
+- Unique target sequences will get target_id (`target_1`, `target_2`, …).  
 - Outputs: `run.csv`, `Binder_seq.fasta`, and `unique_msa/`.
 
 #### Input Modes
@@ -131,7 +131,8 @@ python extract_confidence_metrics.py
 --af2_dir ./example_outputs/AF2
 ```
 
-#### Compute ipSAE scores ([IPSAE](https://github.com/DunbrackLab/IPSAE)):
+#### Compute ipSAE scores and other interface scores as described in here: [IPSAE](https://github.com/DunbrackLab/IPSAE):
+
 ```bash
 python run_ipsae_batch.py
 --run-csv ./example_outputs/run.csv \
@@ -167,12 +168,13 @@ python rmsd.py \
 #### Compute DockQ between input and predicted structure (requires at least two sets of PDBs):
 ```bash
 python dockQ.py \
-  --input_pdbs ./outputs/input_pdbs/ \
-  --folder af3:./outputs/AF3/pdbs/ \
-  --folder af2:./outputs/AF2/pdbs/ \
+  --input_pdbs ./outputs/input_pdbs \
+  --output_csv ./outputs/dockQ.csv \
+  --folder af3:./outputs/AF3/pdbs \
+  --folder af2:./outputs/AF2/pdbs \
   --folder boltz:./outputs/Boltz/pdbs \
   --folder colab:./outputs/ColabFold/pdbs \
-  --output_csv ./outputs/dockQ.csv
+  
 ```
 
 
@@ -186,7 +188,7 @@ PYMOL_DIR=$OUTPUT_DIR/pymol_files
 mkdir -p "${PYMOL_DIR}"
 
 # Create a JSON file that lists the directories for Pymol analysis.
-echo '{"input": "'$OUTPUT_DIR/input_pdbs'", "af2": "'$OUTPUT_DIR/AF2/pdbs'", "colab": "'$OUTPUT_DIR/ColabFold/pdbs'", "boltz1": "'$OUTPUT_DIR/Boltz/pdbs'", "af3": "'$OUTPUT_DIR/AF3/pdbs'"}' > "${PYMOL_DIR}/pdb_dirs.json"
+echo '{"input": "'$OUTPUT_DIR/input_pdbs'", "af2": "'$OUTPUT_DIR/AF2/pdbs'", "colab": "'$OUTPUT_DIR/ColabFold/pdbs'", "boltz": "'$OUTPUT_DIR/Boltz/pdbs'", "af3": "'$OUTPUT_DIR/AF3/pdbs'"}' > "${PYMOL_DIR}/pdb_dirs.json"
 
 cd $OUTPUT_DIR
 # Run Pymol in command-line mode to execute the analysis script.
