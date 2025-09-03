@@ -31,7 +31,7 @@ chmod +x ./functions/DAlphaBall.gcc
 Convert input PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
 
 ```bash
-python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir ./example_outputs
+python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir ./example_output
 ```
 
 - Binder is expected as **chain A** (`A:no_msa` by default).  
@@ -63,7 +63,7 @@ Useful if you don't have input PDBs (e.g., curated or designed sequences).
 Exammple: 
 
 ```bash
-python process_inputs.py --mode seq_only_csv --input_csv ./example_input/input_sequence_only.csv --output_dir ./example_outputs_seq
+python process_inputs.py --mode seq_only_csv --input_csv ./example_input/input_sequence_only.csv --output_dir ./example_output_seq
 ```
 
 -----
@@ -81,7 +81,7 @@ Then the CSV-provided sequence will overwrite the extracted version for that cha
 Exammple: 
 
 ```bash
-python process_inputs.py --mode hybrid --input_pdbs ./example_input/input_pdbs --input_csv ./example_input/input_overwrite.csv --output_dir ./example_outputs_overwrite
+python process_inputs.py --mode hybrid --input_pdbs ./example_input/input_pdbs --input_csv ./example_input/input_overwrite.csv --output_dir ./example_output_overwrite
 ```
 
 **Additional behavior in hybrid mode:**

@@ -1,0 +1,8 @@
+# Chn1 Chn2  PAE Dist  Type   ipSAE    ipSAE_d0chn ipSAE_d0dom  ipTM_af  ipTM_d0chn     pDockQ     pDockQ2    LIS      n0res  n0chn  n0dom   d0res   d0chn   d0dom  nres1   nres2   dist1   dist2  Model
+# A    B     10   10   asym  0.896320    0.699522    0.015612    0.939888    0.939888    0.942    0.939888      0.5589     0.8559     0.7777     3.0311     115    209    209    3.96    5.38    5.38     94     115      35      32   /zhome/projects/project.maxove.anryg/de_novo_binder_scoring/example_output/Boltz/boltz_results_input_folder/predictions/pdl1_binder/pdl1_binder_model_0
+alias color_A_B, color gray80, all; color magenta, chain  A and resi 1-94; color marine, chain  B and resi 1-115
+
+# B    A     10   10   asym  0.894319    0.632181    0.012361    0.951008    0.950796    0.931    0.951008      0.5589     0.8787     0.7655     3.0311      94    209    208    3.52    5.38    5.37    114      94      31      35   /zhome/projects/project.maxove.anryg/de_novo_binder_scoring/example_output/Boltz/boltz_results_input_folder/predictions/pdl1_binder/pdl1_binder_model_0
+# A    B     10   10   max   0.896320    0.699522    0.015612    0.951008    0.950796    0.942    0.951008      0.5589     0.8787     0.7716     3.0311     115    209    208    3.96    5.38    5.37     94     115      35      32   /zhome/projects/project.maxove.anryg/de_novo_binder_scoring/example_output/Boltz/boltz_results_input_folder/predictions/pdl1_binder/pdl1_binder_model_0
+alias color_B_A, color gray80, all; color marine, chain  B and resi 2-115; color magenta, chain  A and resi 1-94
+

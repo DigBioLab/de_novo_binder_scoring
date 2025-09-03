@@ -1,0 +1,4 @@
+binder_id,af2_binder_aligned_rmsd,af2_pae_binder,af2_pae_interaction,af2_pae_target,af2_plddt_binder,af2_plddt_target,af2_plddt_total,af2_target_aligned_rmsd,af2_time
+pmhc_binder_multi_target_chain,0.615,2.786,6.147,3.342,93.38,97.382,96.293,0.893,109.954
+pmhc_binder_fused_target_chain,0.701,2.96,7.66,3.395,91.259,96.889,95.357,1.003,31.998
+pdl1_binder,0.621,2.327,3.865,2.523,95.09,96.172,95.685,1.562,83.807

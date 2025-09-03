@@ -1,0 +1,4 @@
+binder_id,af3_iptm_model_0,af3_ptm_model_0,af3_iptm_avg,af3_iptm_std,af3_ptm_avg,af3_ptm_std
+pdl1_binder,0.9,0.91,0.89,0.01,0.91,0.0
+pmhc_binder_fused_target_chain,0.92,0.94,0.91,0.01,0.93,0.01
+pmhc_binder_multi_target_chain,0.92,0.94,0.91,0.01,0.93,0.01
