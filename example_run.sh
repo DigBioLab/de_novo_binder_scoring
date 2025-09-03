@@ -112,10 +112,8 @@ START_TIME=$(date +%s)
 echo -e "\nRunning ColabFold" >> "${LOG_DIR}/log.txt"
 
 # >>> load ColabFold environment <<<
-
 colabfold_batch "${OUTPUT_DIR}/ColabFold/input_folder" "${OUTPUT_DIR}/ColabFold/ptm_output" --calc-extra-ptm --num-recycle 3  --num-models 3
 find "${OUTPUT_DIR}/ColabFold/ptm_output" -type f -name "*.png" -exec rm -f {} \;
-
 # >>> unload ColabFold environment <<<
 
 END_TIME=$(date +%s)
@@ -129,13 +127,11 @@ START_TIME=$(date +%s)
 echo -e "\nRunning Boltz" >> "${LOG_DIR}/log.txt"
 
 # >>> load Boltz environment <<<
-
 boltz predict "${OUTPUT_DIR}/Boltz/input_folder" \
     --recycling_steps 10 \
     --diffusion_samples 3 \
     --write_full_pae \
     --out_dir "${OUTPUT_DIR}/Boltz"
-
 # >>> unload Boltz environment <<<
 
 END_TIME=$(date +%s)
@@ -191,6 +187,7 @@ python run_ipsae_batch.py \
   --colab-dir "${OUTPUT_DIR}/ColabFold" \
   --ipsae-script-path ./ipsae_w_ipae.py \
   --pae-cutoff 10 --dist-cutoff 10 \
+  --backup 
 
 # ==============================================================================
 # 10. Computing DockQ
@@ -198,13 +195,16 @@ python run_ipsae_batch.py \
 echo -e "\nComputing dockQ" >> "${LOG_DIR}/log.txt"
 
 python dockQ.py \
+  --run-csv "${OUTPUT_DIR}/run.csv" \
   --input-pdbs "${OUTPUT_DIR}/input_pdbs/" \
   --folder af3:"${OUTPUT_DIR}/AF3/pdbs/" \
   --folder af2:"${OUTPUT_DIR}/AF2/pdbs/" \
-  --folder boltz1:"${OUTPUT_DIR}/Boltz/pdbs" \
+  --folder boltz:"${OUTPUT_DIR}/Boltz/pdbs" \
   --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
-  --out-csv "${OUTPUT_DIR}/dockQ.csv"
-
+  --out-csv "${OUTPUT_DIR}/dockQ.csv" \
+  --backup \
+  --verbose
+d
 
 # ==============================================================================
 # 11. Compute Rosetta metrics

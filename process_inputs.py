@@ -719,6 +719,43 @@ def process_csv_and_generate_msa(csv_file: str, outpath: str):
 # ---------------------------
 # Utilities
 # ---------------------------
+def copy_and_sanitize_pdbs(input_pdbs: Path, output_pdbs: Path) -> Dict[str, Path]:
+    """
+    Copy PDBs from input_pdbs → output_pdbs with sanitized names (collision-safe).
+    - Overwrites existing files if rerun with same input (with warning).
+    - Only adds _1, _2 if *multiple inputs* collide in the same run.
+    """
+    output_pdbs.mkdir(parents=True, exist_ok=True)
+    mapping = {}
+
+    for pdb_file in sorted(input_pdbs.glob("*.pdb")):
+        san = sanitize_stem(pdb_file.stem)
+        candidate = san
+
+        target_path = output_pdbs / f"{candidate}.pdb"
+        if target_path.exists():
+            print_info(f"[warning] Overwriting existing {target_path.name} in output folder")
+            shutil.copy2(pdb_file, target_path)
+            mapping[candidate] = target_path.resolve()
+            continue
+
+        # Handle collisions within this run
+        k = 0
+        while (output_pdbs / f"{candidate}.pdb").exists():
+            k += 1
+            candidate = f"{san}_{k}"
+            target_path = output_pdbs / f"{candidate}.pdb"
+
+        shutil.copy2(pdb_file, target_path)
+        if pdb_file.name != target_path.name:
+            print_info(f"[copy+sanitize] {pdb_file.name} -> {target_path.name}")
+        else:
+            print_info(f"[copy] {pdb_file.name}")
+        mapping[candidate] = target_path.resolve()
+
+    return mapping
+
+
 
 def sanitize_pdb_names_inplace(folder: Path) -> Dict[str, Path]:
     """
@@ -726,19 +763,32 @@ def sanitize_pdb_names_inplace(folder: Path) -> Dict[str, Path]:
     Returns a mapping: sanitized_stem -> full Path.
     """
     pdbs = sorted(folder.glob("*.pdb"))
+    mapping = {}
+
     for p in pdbs:
         old_stem = p.stem
         san = sanitize_stem(old_stem)
+
+        # If already sanitized, just keep as is
+        if san == old_stem:
+            mapping[old_stem] = p.resolve()
+            continue
+
         candidate = san
         k = 0
         while (folder / f"{candidate}.pdb").exists() and candidate != old_stem:
             k += 1
             candidate = f"{san}_{k}"
+
         new_path = folder / f"{candidate}.pdb"
-        if new_path.name != p.name:
+        if new_path != p:
             print_info(f"[sanitize] {p.name} -> {new_path.name}")
             p.rename(new_path)
-    return {p.stem: p.resolve() for p in folder.glob("*.pdb")}
+            p = new_path  # update reference
+
+        mapping[candidate] = p.resolve()
+
+    return mapping
 
 # ---------------------------
 # Main
@@ -757,6 +807,28 @@ def main():
     output_pdbs = output_dir / "input_pdbs"
     output_dir.mkdir(parents=True, exist_ok=True)
 
+
+    # check that no input PDBs collide by sanitation of the names
+    if args.mode in ["hybrid", "pdb_only"]:
+        if not args.input_pdbs:
+            print_info(f"ERROR: --mode {args.mode} requires --input_pdbs")
+            sys.exit(1)
+
+        input_pdbs = Path(args.input_pdbs).resolve()
+        if not input_pdbs.is_dir():
+            print_info(f"ERROR: input_pdbs is not a directory: {input_pdbs}")
+            sys.exit(1)
+
+        # --- Check for input collisions before copying ---
+        sanitized_counts = {}
+        for p in input_pdbs.glob("*.pdb"):
+            san = sanitize_stem(p.stem)
+            sanitized_counts[san] = sanitized_counts.get(san, 0) + 1
+
+        for san, count in sanitized_counts.items():
+            if count > 1:
+                print_info(f"[warning - data deletion!] Multiple input PDBs sanitize to the same name: {san}.pdb ({count} files)")
+
     if args.mode == "hybrid":
         if not args.input_pdbs or not args.input_csv:
             print_info("ERROR: --mode hybrid requires --input_pdbs and --input_csv")
@@ -770,15 +842,10 @@ def main():
             print_info(f"ERROR: input_csv not found: {input_csv}")
             sys.exit(1)
 
-        # Copy → merge → renumber → sanitize
-        output_pdbs.mkdir(parents=True, exist_ok=True)
-        for pdb_file in input_pdbs.glob("*.pdb"):
-            shutil.copy2(pdb_file, output_pdbs)
-        print(f"Copied {len(list(input_pdbs.glob('*.pdb')))} PDBs to {output_pdbs}")
-
-    
+        
+        # Copy + sanitize → merge → renumber
+        san_map = copy_and_sanitize_pdbs(input_pdbs, output_pdbs)
         postprocess_pdbs_merge_then_renumber(str(output_pdbs))
-        san_map = sanitize_pdb_names_inplace(output_pdbs)
 
         run_csv = output_dir / "run.csv"
         update_run_csv_hybrid(input_csv, output_pdbs, run_csv, san_map, distance_threshold=args.distance_threshold)
@@ -794,16 +861,9 @@ def main():
             print_info(f"ERROR: input_pdbs is not a directory: {input_pdbs}")
             sys.exit(1)
 
-        # Copy → merge → renumber → sanitize
-        output_pdbs.mkdir(parents=True, exist_ok=True)
-        for pdb_file in input_pdbs.glob("*.pdb"):
-            shutil.copy2(pdb_file, output_pdbs)
-        print(f"Copied {len(list(input_pdbs.glob('*.pdb')))} PDBs to {output_pdbs}")
-
-
+        # Copy + sanitize → merge → renumber
+        _ = copy_and_sanitize_pdbs(input_pdbs, output_pdbs)
         postprocess_pdbs_merge_then_renumber(str(output_pdbs))
-
-        _ = sanitize_pdb_names_inplace(output_pdbs)
 
         run_csv = output_dir / "run.csv"
         build_run_csv_from_pdbs(output_pdbs, run_csv, distance_threshold=args.distance_threshold)

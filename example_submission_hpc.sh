@@ -250,12 +250,14 @@ echo "Structures relaxed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/l
 echo -e "\nComputing RMSDs" >> "${LOG_DIR}/log.txt"
 
 python rmsd.py \
+  --run-csv "${OUTPUT_DIR}/run.csv" \
   --folder input:"${OUTPUT_DIR}/input_pdbs/" \
   --folder af3:"${OUTPUT_DIR}/AF3/pdbs/" \
   --folder af2:"${OUTPUT_DIR}/AF2/pdbs/" \
   --folder boltz:"${OUTPUT_DIR}/Boltz/pdbs" \
   --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
-  --out-csv "${OUTPUT_DIR}/rmsd.csv"
+  --out-csv "${OUTPUT_DIR}/rmsd.csv" \
+  --backup
 conda deactivate
 
 # ==============================================================================

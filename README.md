@@ -26,77 +26,71 @@ chmod +x ./functions/DAlphaBall.gcc
 
 ## Usage
 
+
+## Usage
+
 ### 1. Process inputs
 
 Convert input PDBs into standardized inputs (`run.csv`, cleaned PDBs, and MSA FASTAs):
 
 ```bash
-python process_inputs.py --input_pdbs ./example_input/input_pdbs   --output_dir ./example_output
+python process_inputs.py \
+  --input_pdbs ./example_input/input_pdbs \
+  --output_dir ./example_output
 ```
 
-- Binder is expected as **chain A** (`A:no_msa` by default).  
-- Non-A chains are merged into **B** in PDB for downstream analysis (Also works target chains of input are already merged).  
-- Unique target sequences will get target_id (`target_1`, `target_2`, …).  
-- Outputs: `run.csv`, `Binder_seq.fasta`, and `unique_msa/`.
+* Binder is expected as **chain A** (`A:no_msa` by default).
+* Non-A chains are merged into **B** in PDB for downstream analysis (also works if target chains of input are already merged).
+* Unique target sequences will get target IDs (`target_1`, `target_2`, …).
+* Outputs: `run.csv`, `Binder_seq.fasta`, and `unique_msa/`.
+
+#### Sanitation of names
+
+All names are automatically sanitized: lowercase letters, underscores, and numbers are allowed; all non-alphanumerics are replaced with `_`.
+Be careful that your input files do not sanitize to the same name (e.g., `abc.pdb`, `AbC.pdb`, and `abC.pdb` all become `abc.pdb`).
 
 #### Input Modes
 
-You can overwrite columns in `run.csv` for customization (e.g custom target sequences, target names or MSA settings) using the `--mode` flag:
+You can overwrite columns in `run.csv` for customization using the `--mode` flag:
 
 ```bash
-python process_inputs.py --mode {pdb_only,seq_only_csv,hybrid}
+python process_inputs.py --mode {pdb_only, seq_only_csv, hybrid}
 ```
 
------
+* `pdb_only` (default): sequences and other columns are automatically inferred from input PDBs.
+* `seq_only_csv`: sequences and columns are taken only from a CSV. Useful if you do not have input PDBs.
 
-`pdb_only` (default)
-
-Sequences columns and all other columned are automatically infered from the input PDB files.
-
------
-
-`seq_only_csv`
-
-Sequences and all other columns are taken only from the CSV.
-Useful if you don't have input PDBs (e.g., curated or designed sequences).
-
-Exammple: 
+Example:
 
 ```bash
-python process_inputs.py --mode seq_only_csv --input_csv ./example_input/input_sequence_only.csv --output_dir ./example_output_seq
+python process_inputs.py \
+  --mode seq_only_csv \
+  --input_csv ./example_input/input_sequence_only.csv \
+  --output_dir ./example_output_seq
 ```
 
------
+* `hybrid`: sequences are extracted from PDBs by default, but can be overwritten with CSV-specified sequences. To overwrite, the CSV must specify:
 
-`hybrid` (possibility of overwriting PDB extracted sequence of target chains and other columns in `run.csv`)
+  * `target_chains` – all target chains (including those not overwritten)
+  * `target_subchain_X_seq` – one column per chain to overwrite (e.g., `target_subchain_D_seq`)
 
-In this mode, by default, sequences are extracted from the PDBs.
-However one can also ***overwrite the PDB extracted seqeunces***, as well as any other columns. To overwrite the PDB extracted sequences with custom sequence, the input CSV must specify both:
-
-  * `target_chains` please specify all target chains (also ones that should not be overwritten)
-  * `target_subchain_X_seq` (one column per subchain that one wants to overwrite, e.g., `target_subchain_D_seq`)
-
-Then the CSV-provided sequence will overwrite the extracted version for that chain.
-
-Exammple: 
+Example:
 
 ```bash
-python process_inputs.py --mode hybrid --input_pdbs ./example_input/input_pdbs --input_csv ./example_input/input_overwrite.csv --output_dir ./example_output_overwrite
+python process_inputs.py \
+  --mode hybrid \
+  --input_pdbs ./example_input/input_pdbs \
+  --input_csv ./example_input/input_overwrite.csv \
+  --output_dir ./example_output_overwrite
 ```
 
-**Additional behavior in hybrid mode:**
-
-  * **Logging extracted sequences**
-    When a CSV-provided sequence overwrites a PDB-extracted one, the extracted sequence is still stored in a dedicated column: `pdb_extracted_trg_subch_{X}_not_used`.
-    This ensures transparency: you can always compare the provided sequence against what was found in the structure.
-
-<!-- end list -->
+* **Logging behavior**: overwritten sequences are stored in `pdb_extracted_trg_subch_{X}_not_used` to preserve original PDB info.
 
 ---
 
 ### 2. Generate MSAs
 
-We used the ColabFold server (MMseqs2) for MSAs generation, this will require a seperate ColabFold installation. Example:
+Generate MSAs using ColabFold (MMseqs2). Requires a separate ColabFold installation:
 
 ```bash
 colabfold_batch ./example_outputs/unique_msa ./example_outputs/unique_msa/msa --msa-only
@@ -106,100 +100,180 @@ colabfold_batch ./example_outputs/unique_msa ./example_outputs/unique_msa/msa --
 
 ### 3. Prepare model inputs
 
-Generate input files for structure prediction models (AF3, Boltz-1/2, ColabFold):
+Generate inputs for structure prediction models (AF3, Boltz, ColabFold):
 
 ```bash
-python generate_model_inputs.py   --csv_file ./example_outputs/run.csv   --out_dir ./example_outputs   --models af3 boltz colabfold
+python generate_model_inputs.py \
+  --run-csv ./example_outputs/run.csv \
+  --out-dir ./example_outputs
 ```
-
-The individual structure prediction tools need to be installed independenly, an example how they can be run can be found in the example_run.sh
-
-For AF2 initial guess the pdbs have the correct format to use them directly as an input as specified here https://github.com/nrbennet/dl_binder_design.
 
 ---
 
-### 4. Process outputs
-
-#### Extract model metrics
-```bash
-python extract_confidence_metrics.py
---run_csv ./example_outputs/run.csv \
---output_dir ./example_outputs/ \
---colab_dir ./example_outputs/ColabFold \
---boltz_dir ./example_outputs/Boltz \
---af3_dir ./example_outputs/AF3 \
---af2_dir ./example_outputs/AF2
-```
-
-#### Compute ipSAE scores and other interface scores as described in here: [IPSAE](https://github.com/DunbrackLab/IPSAE):
+### 4. Relax input structures & compute Rosetta metrics
 
 ```bash
-python run_ipsae_batch.py
---run-csv ./example_outputs/run.csv \
---af3-dir ./example_outputs/AF3 \
---boltz-dir ./example_outputs/Boltz \
---colab-dir ./example_outputs/ColabFold
+python compute_rosetta_metrics.py \
+  --run-csv ./example_outputs/run.csv \
+  --out-csv ./example_outputs/input_rosetta_metrics.csv \
+  --folder input:./example_outputs/input_pdbs
 ```
 
-#### Compute Rosetta metrics ([BindCraft-inspired](https://github.com/martinpacesa/BindCraft)):
+---
+
+### 5. AF2 initial guess
+
+Run AF2 prediction on relaxed PDBs:
+
 ```bash
-python compute_rosetta_metrics.py
---run-csv ./example_outputs/run.csv \
---out-csv ./example_outputs/rosetta_metrics.csv \
---folder input=./example_outputs/input_pdbs \
---folder af3=./example_outputs/AF3/pdbs \
---folder boltz=./example_outputs/Boltz/pdbs \
---folder colab=./example_outputs/ColabFold/pdbs \
---folder af2=./example_outputs/AF2/pdbs
+predict.py \
+  -pdbdir ./example_outputs/input_pdbs/relaxed_pdbs \
+  -scorefilename out.sc \
+  -outsilent af2.silent
 ```
 
-#### Compute RMSD (requires at least two sets of PDBs):
+---
+
+### 6. Run ColabFold
+
 ```bash
-python rmsd.py \ 
---folder input:./outputs/input_pdbs \
---folder af3:./outputs/AF3/pdbs \
---folder af2:./outputs/AF2/pdbs \
---folder boltz:./outputs/Boltz/pdbs \
---folder colab:./outputs/ColabFold/pdbs \
---out-csv ./outputs/rmsd.csv
+colabfold_batch ./example_outputs/ColabFold/input_folder ./example_outputs/ColabFold/ptm_output \
+  --calc-extra-ptm --num-recycle 3 --num-models 3
 ```
 
+Optional: remove generated PNGs:
 
-#### Compute DockQ between input and predicted structure (requires at least two sets of PDBs):
+```bash
+find ./example_outputs/ColabFold/ptm_output -type f -name "*.png" -exec rm -f {} \;
+```
+
+---
+
+### 7. Run Boltz
+
+```bash
+boltz predict ./example_outputs/Boltz/input_folder \
+  --recycling_steps 10 \
+  --diffusion_samples 3 \
+  --write_full_pae \
+  --out_dir ./example_outputs/Boltz
+```
+
+---
+
+### 8. Run AF3
+
+```bash
+python run_alphafold.py \
+  --input_dir=./example_outputs/AF3/input_folder \
+  --model_dir=/path/to/alphafold3_weights \
+  --db_dir=/path/to/alphafold3_database \
+  --run_data_pipeline=False \
+  --num_diffusion_samples=3 \
+  --output_dir=./example_outputs/AF3/outputs
+```
+
+---
+
+### 9. Extract confidence metrics
+
+```bash
+python extract_confidence_metrics.py \
+  --run-csv ./example_outputs/run.csv \
+  --out-dir ./example_outputs
+```
+
+---
+
+### 10. Compute ipSAE and interface confidence metrics
+
+```bash
+python run_ipsae_batch.py \
+  --run-csv ./example_outputs/run.csv \
+  --out-csv ./example_outputs/ipsae_and_ipae.csv \
+  --af3-dir ./example_outputs/AF3 \
+  --boltz1-dir ./example_outputs/Boltz \
+  --colab-dir ./example_outputs/ColabFold \
+  --ipsae-script-path ./ipsae_w_ipae.py \
+  --pae-cutoff 10 \
+  --dist-cutoff 10 \
+  --backup
+```
+
+---
+
+### 11. Compute DockQ
+
 ```bash
 python dockQ.py \
-  --input_pdbs ./outputs/input_pdbs \
-  --output_csv ./outputs/dockQ.csv \
-  --folder af3:./outputs/AF3/pdbs \
-  --folder af2:./outputs/AF2/pdbs \
-  --folder boltz:./outputs/Boltz/pdbs \
-  --folder colab:./outputs/ColabFold/pdbs \
-  
+  --run-csv ./example_outputs/run.csv \
+  --input-pdbs ./example_outputs/input_pdbs/ \
+  --folder af3:./example_outputs/AF3/pdbs/ \
+  --folder af2:./example_outputs/AF2/pdbs/ \
+  --folder boltz:./example_outputs/Boltz/pdbs/ \
+  --folder colab:./example_outputs/ColabFold/pdbs/ \
+  --out-csv ./example_outputs/dockQ.csv \
+  --backup \
+  --verbose
 ```
 
+---
 
-#### Compute pymol metrics:
-This will require separate installation of the opensource pymol package: https://github.com/schrodinger/pymol-open-source
+### 12. Compute Rosetta metrics for model PDBs
 
-Using the pymol environment navigate to de_novo_binder_scoring dir and then execute the following.
+```bash
+python compute_rosetta_metrics.py \
+  --run-csv ./example_outputs/run.csv \
+  --out-csv ./example_outputs/rosetta_metrics.csv \
+  --folder af3:./example_outputs/AF3/pdbs/ \
+  --folder af2:./example_outputs/AF2/pdbs/ \
+  --folder boltz1:./example_outputs/Boltz/pdbs/ \
+  --folder colab:./example_outputs/ColabFold/pdbs/ \
+  --folder input:./example_outputs/input_pdbs/
+```
+
+---
+
+### 13. Compute RMSDs
+
+```bash
+python rmsd.py \
+  --folder input:./example_outputs/input_pdbs/ \
+  --folder af3:./example_outputs/AF3/pdbs/ \
+  --folder af2:./example_outputs/AF2/pdbs/ \
+  --folder boltz1:./example_outputs/Boltz/pdbs/ \
+  --folder colab:./example_outputs/ColabFold/pdbs/ \
+  --out-csv ./example_outputs/rmsd.csv
+```
+
+---
+
+### 14. Compute PyMOL metrics
+
+Requires the open-source PyMOL installation:
+
 ```bash
 OUTPUT_DIR="$(pwd)/outputs"
 PYMOL_DIR=$OUTPUT_DIR/pymol_files
 mkdir -p "${PYMOL_DIR}"
 
-# Create a JSON file that lists the directories for Pymol analysis.
-echo '{"input": "'$OUTPUT_DIR/input_pdbs'", "af2": "'$OUTPUT_DIR/AF2/pdbs'", "colab": "'$OUTPUT_DIR/ColabFold/pdbs'", "boltz": "'$OUTPUT_DIR/Boltz/pdbs'", "af3": "'$OUTPUT_DIR/AF3/pdbs'"}' > "${PYMOL_DIR}/pdb_dirs.json"
+# Create JSON file listing PDB directories
+echo '{"input": "'$OUTPUT_DIR/input_pdbs'", "af2": "'$OUTPUT_DIR/AF2/pdbs'", "colab": "'$OUTPUT_DIR/ColabFold/pdbs'", "boltz1": "'$OUTPUT_DIR/Boltz/pdbs'", "af3": "'$OUTPUT_DIR/AF3/pdbs'"}' > "${PYMOL_DIR}/pdb_dirs.json"
 
+# Run PyMOL analysis script
 cd $OUTPUT_DIR
-# Run Pymol in command-line mode to execute the analysis script.
 python -m pymol -c -d "run ../pymol_metrics.py"
 ```
----
-## Example run
-
-A full workflow is provided in **`example_run.sh`**.
 
 ---
+
+### Full workflow example
+
+See **`example_run.sh`** for a complete pipeline example including environment loading/unloading.
+
+---
+
+
 
 ## Citation
 
