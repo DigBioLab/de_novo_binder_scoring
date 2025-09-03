@@ -48,7 +48,7 @@ echo -e "\nRelaxing input PDBs and computing Rosetta metrics" >> "${LOG_DIR}/log
 python compute_rosetta_metrics.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --out-csv "${OUTPUT_DIR}/input_rosetta_metrics.csv" \
-  --foler input:"${OUTPUT_DIR}/input_pdbs" \
+  --folder input:"${OUTPUT_DIR}/input_pdbs" \
 
 conda deactivate
 conda deactivate
