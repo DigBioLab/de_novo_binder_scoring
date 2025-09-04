@@ -35,7 +35,7 @@ cd $SCRIPT_DIR
 source "$CONDA_PATH"
 conda activate binder_scoring_env
 
-python process_inputs.py \
+python ./scripts/process_inputs.py \
   --input_pdbs "${INPUT_PDBS}" \
   --output_dir "${OUTPUT_DIR}" 
 
@@ -45,7 +45,7 @@ python process_inputs.py \
 START_TIME=$(date +%s)
 echo -e "\nRelaxing input PDBs and computing Rosetta metrics" >> "${LOG_DIR}/log.txt"
 
-python compute_rosetta_metrics.py \
+python ./scripts/compute_rosetta_metrics.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --out-csv "${OUTPUT_DIR}/input_rosetta_metrics.csv" \
   --folder input:"${OUTPUT_DIR}/input_pdbs" \
@@ -63,20 +63,20 @@ echo "Structures relaxed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/l
 START_TIME=$(date +%s)
 echo -e "\nRunning AF2 initial guess" >> "${LOG_DIR}/log.txt"
 
+mkdir -p "${OUTPUT_DIR}/AF2" && cd "${OUTPUT_DIR}/AF2"
 
 # >>> load af2 initial guess environment <<<
-
-mkdir -p "${OUTPUT_DIR}/AF2" && cd "${OUTPUT_DIR}/AF2"
 
 # Run AF2 prediction
 predict.py -pdbdir "${OUTPUT_DIR}/input_pdbs/relaxed_pdbs" \
     -scorefilename "out.sc" \
     -outsilent "af2.silent"
 
+# >>> unload af2 initial guess environment <<<
+
 END_TIME=$(date +%s)
 echo "AF2 initial guess completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
 
-# >>> unload af2 initial guess environment <<<
 
 # ==============================================================================
 # 4A. Generate MSA files  
@@ -97,7 +97,7 @@ colabfold_batch "${OUTPUT_DIR}/unique_msa" "${OUTPUT_DIR}/unique_msa/msa"  --msa
 source "$CONDA_PATH"
 conda activate binder_scoring_env
 
-python generate_model_inputs.py \
+python ./scripts/generate_model_inputs.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --out-dir  "${OUTPUT_DIR}"
 
@@ -112,8 +112,10 @@ START_TIME=$(date +%s)
 echo -e "\nRunning ColabFold" >> "${LOG_DIR}/log.txt"
 
 # >>> load ColabFold environment <<<
+
 colabfold_batch "${OUTPUT_DIR}/ColabFold/input_folder" "${OUTPUT_DIR}/ColabFold/ptm_output" --calc-extra-ptm --num-recycle 3  --num-models 3
 find "${OUTPUT_DIR}/ColabFold/ptm_output" -type f -name "*.png" -exec rm -f {} \;
+
 # >>> unload ColabFold environment <<<
 
 END_TIME=$(date +%s)
@@ -127,11 +129,13 @@ START_TIME=$(date +%s)
 echo -e "\nRunning Boltz" >> "${LOG_DIR}/log.txt"
 
 # >>> load Boltz environment <<<
+
 boltz predict "${OUTPUT_DIR}/Boltz/input_folder" \
     --recycling_steps 10 \
     --diffusion_samples 3 \
     --write_full_pae \
     --out_dir "${OUTPUT_DIR}/Boltz"
+
 # >>> unload Boltz environment <<<
 
 END_TIME=$(date +%s)
@@ -170,7 +174,7 @@ echo -e "\nExtracting confidence metrics" >> "${LOG_DIR}/log.txt"
 source "$CONDA_PATH"
 conda activate binder_scoring_env
 
-python extract_confidence_metrics.py \
+python ./scripts/extract_confidence_metrics.py \
   --run-csv  "${OUTPUT_DIR}/run.csv" \
   --out-dir "${OUTPUT_DIR}"
 
@@ -179,22 +183,21 @@ python extract_confidence_metrics.py \
 # 9. compute ipSAE and other interface confidence metrics
 # ==============================================================================
 echo -e "\nComputing ipSAE and other interface confidence metrics" >> "${LOG_DIR}/log.txt"
-python run_ipsae_batch.py \
+python ./scripts/run_ipsae_batch.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --out-csv "${OUTPUT_DIR}/ipsae_and_ipae.csv" \
   --af3-dir "${OUTPUT_DIR}/AF3" \
   --boltz1-dir "${OUTPUT_DIR}/Boltz" \
   --colab-dir "${OUTPUT_DIR}/ColabFold" \
-  --ipsae-script-path ./ipsae_w_ipae.py \
-  --pae-cutoff 10 --dist-cutoff 10 \
-  --backup 
+  --ipsae-script-path ./scripts/ipsae_w_ipae.py \
+
 
 # ==============================================================================
 # 10. Computing DockQ
 # ==============================================================================
 echo -e "\nComputing dockQ" >> "${LOG_DIR}/log.txt"
 
-python dockQ.py \
+python ./scripts/dockQ.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --input-pdbs "${OUTPUT_DIR}/input_pdbs/" \
   --folder af3:"${OUTPUT_DIR}/AF3/pdbs/" \
@@ -202,9 +205,7 @@ python dockQ.py \
   --folder boltz:"${OUTPUT_DIR}/Boltz/pdbs" \
   --folder colab:"${OUTPUT_DIR}/ColabFold/pdbs" \
   --out-csv "${OUTPUT_DIR}/dockQ.csv" \
-  --backup \
-  --verbose
-d
+
 
 # ==============================================================================
 # 11. Compute Rosetta metrics
@@ -213,7 +214,7 @@ d
 START_TIME=$(date +%s)
 echo -e "\nRelaxing model PDBs and computing Rosetta metrics" >> "${LOG_DIR}/log.txt"
 
-python compute_rosetta_metrics.py \
+python ./scripts/compute_rosetta_metrics.py \
   --run-csv "${OUTPUT_DIR}/run.csv" \
   --out-csv "${OUTPUT_DIR}/rosetta_metrics.csv" \
   --folder af3:"${OUTPUT_DIR}/AF3/pdbs" \
@@ -228,7 +229,7 @@ echo "Structures relaxed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/l
 # ==============================================================================
 echo -e "\nComputing RMSDs" >> "${LOG_DIR}/log.txt"
 
-python rmsd.py \
+python ./scripts/rmsd.py \
   --folder input:"${OUTPUT_DIR}/input_pdbs/" \
   --folder af3:"${OUTPUT_DIR}/AF3/pdbs/" \
   --folder af2:"${OUTPUT_DIR}/AF2/pdbs/" \
@@ -252,7 +253,7 @@ mkdir -p "${PYMOL_DIR}"
 # Create a JSON file that lists the directories for Pymol analysis.
 echo '{"input": "'${OUTPUT_DIR}/input_pdbs'", "af2": "'${OUTPUT_DIR}/AF2/pdbs'", "colab": "'${OUTPUT_DIR}/ColabFold/pdbs'", "boltz1": "'${OUTPUT_DIR}/Boltz/pdbs'", "af3": "'${OUTPUT_DIR}/AF3/pdbs'"}' > "${PYMOL_DIR}/pdb_dirs.json"
 # Run Pymol in command-line mode to execute the analysis script.
-python -m pymol -c -d "run ${SCRIPT_DIR}/pymol_metrics.py"
+python -m pymol -c -d "run ${SCRIPT_DIR}/scripts/pymol_metrics.py"
 
 # >>> unload Pymol environment <<<
 

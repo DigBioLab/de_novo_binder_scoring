@@ -1,4 +1,4 @@
 binder_id,af2_binder_aligned_rmsd,af2_pae_binder,af2_pae_interaction,af2_pae_target,af2_plddt_binder,af2_plddt_target,af2_plddt_total,af2_target_aligned_rmsd,af2_time
-pmhc_binder_multi_target_chain,0.615,2.786,6.147,3.342,93.38,97.382,96.293,0.893,109.954
-pmhc_binder_fused_target_chain,0.701,2.96,7.66,3.395,91.259,96.889,95.357,1.003,31.998
-pdl1_binder,0.621,2.327,3.865,2.523,95.09,96.172,95.685,1.562,83.807
+pmhc_binder_multi_target_chain,0.577,2.821,6.437,3.383,92.918,97.269,96.084,0.771,109.798
+pmhc_binder_fused_target_chain,0.7,2.96,7.194,3.461,92.033,96.881,95.562,1.075,31.944
+pdl1_binder,0.585,2.321,3.849,2.511,95.127,96.205,95.72,1.521,83.119

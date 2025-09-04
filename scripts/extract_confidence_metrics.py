@@ -635,8 +635,8 @@ def parse_args():
     )
     p.add_argument("--run-csv", required=True, help="Path to run.csv (will be updated in-place)")
     p.add_argument("--out-dir", required=True, help="Pipeline output base directory")
-    p.add_argument("--models", default="colab,boltz1,af3,af2",
-                   help="Comma-separated list among: colab,boltz1,af3,af2")
+    p.add_argument("--models", default="colab,boltz,af3,af2",
+                   help="Comma-separated list among: colab,boltz,af3,af2")
     # Optional overrides (defaults derive from output_dir)
     p.add_argument("--colab_dir", default=None, help="Override ColabFold base dir (default: <output_dir>/ColabFold)")
     p.add_argument("--boltz_dir", default=None, help="Override Boltz base dir (default: <output_dir>/Boltz)")
@@ -666,7 +666,7 @@ def main():
             _merge_into_run(args.run_csv, df_colab)
 
     # BOLTZ1
-    if "boltz1" in models:
+    if "boltz" in models:
         predictions_folder = os.path.join(boltz_dir, "boltz_results_input_folder")
         df_boltz = extract_boltz1_metrics(predictions_folder, boltz_dir)
         if not df_boltz.empty:

@@ -15,7 +15,7 @@
                 "id": "B",
                 "sequence": "NAFTVTVPKDLYVVEYGSNMTIECKFPVEKQLDLAALIVYWEMEDKNIIQFVHGEEDLKVQHSSYRQRARLLKDQLSLGNAALQITDVKLQDAGVYRCMISYGGADYKRITVKVN",
                 "templates": [],
-                "unpairedMsaPath": "/zhome/projects/project.maxove.anryg/de_novo_binder_scoring/example_output/unique_msa/msa/pdl1_binder_target_1_chain_B.a3m",
+                "unpairedMsaPath": "/zhome/projects/project.maxove.anryg/de_novo_binder_scoring/example_output1/unique_msa/msa/pdl1_binder_target_1_chain_B.a3m",
                 "pairedMsa": ""
             }
         }

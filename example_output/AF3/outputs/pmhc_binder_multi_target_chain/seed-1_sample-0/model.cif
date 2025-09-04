@@ -636,7 +636,7 @@ _ma_data.name         Model
 #
 _ma_model_list.data_id          1
 _ma_model_list.model_group_id   1
-_ma_model_list.model_group_name "AlphaFold-beta-20231127 (3.0.1 @ 2025-09-03 11:00:52)"
+_ma_model_list.model_group_name "AlphaFold-beta-20231127 (3.0.1 @ 2025-09-04 08:52:30)"
 _ma_model_list.model_id         1
 _ma_model_list.model_name       "Top ranked model"
 _ma_model_list.model_type       "Ab initio model"

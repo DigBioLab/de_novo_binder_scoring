@@ -20,12 +20,9 @@ chmod +x ./functions/DAlphaBall.gcc
 
 **Note 1**: This repo uses [PyRosetta](https://www.pyrosetta.org/downloads) for two scripts (`compute_rosetta_metrics.py` and `rmsd.py`), which requires a license for commercial use.
 
-**Note 2**: The used structure predictions tools (AF2 initial guess, ColabFold, Boltz and AF3) require seperate installations - these blocks are marked in the `example_run.sh` script.
+**Note 2**: The used structure predictions tools (AF2 initial guess, ColabFold, Boltz and AF3) require seperate installations.
 
 ---
-
-## Usage
-
 
 ## Usage
 
@@ -58,7 +55,7 @@ python ./scripts/process_inputs.py --mode {pdb_only, seq_only_csv, hybrid}
 ```
 
 * `pdb_only` (default): sequences and other columns are automatically inferred from input PDBs.
-* `seq_only_csv`: sequences and columns are taken only from a CSV. Useful if you do not have input PDBs.
+* `seq_only_csv`: sequences and other columns are taken only from a CSV. Useful if you do not have input PDBs.
 
 Example:
 
@@ -90,7 +87,7 @@ python ./scripts/process_inputs.py \
 
 ### 2. Generate MSAs
 
-Generate MSAs using ColabFold (MMseqs2). Requires a separate ColabFold installation:
+Generate MSAs using the ColabFold server (MMseqs2). Requires a separate [ColabFold](https://github.com/YoshitakaMo/localcolabfold) installation:
 
 ```bash
 colabfold_batch ./example_output/unique_msa ./example_output/unique_msa/msa --msa-only
@@ -113,7 +110,7 @@ python ./scripts/generate_model_inputs.py \
 ### 4. Relax input structures & compute Rosetta metrics
 
 ```bash
-python compute_rosetta_metrics.py \
+python ./scripts/compute_rosetta_metrics.py \
   --run-csv ./example_output/run.csv \
   --out-csv ./example_output/input_rosetta_metrics.csv \
   --folder input:./example_output/input_pdbs
@@ -123,7 +120,7 @@ python compute_rosetta_metrics.py \
 
 ### 5. AF2 initial guess
 
-Run AF2 prediction on relaxed PDBs:
+Run AF2 prediction on relaxed PDBs. Requires a separate [AF2 initial guess](https://github.com/nrbennet/dl_binder_design) installation:
 
 ```bash
 predict.py \
@@ -136,20 +133,18 @@ predict.py \
 
 ### 6. Run ColabFold
 
+Requires a separate [ColabFold](https://github.com/YoshitakaMo/localcolabfold) installation:
+
 ```bash
 colabfold_batch ./example_output/ColabFold/input_folder ./example_output/ColabFold/ptm_output \
   --calc-extra-ptm --num-recycle 3 --num-models 3
 ```
 
-Optional: remove generated PNGs:
-
-```bash
-find ./example_output/ColabFold/ptm_output -type f -name "*.png" -exec rm -f {} \;
-```
-
 ---
 
 ### 7. Run Boltz
+
+Requires a separate [Boltz](https://github.com/jwohlwend/boltz) installation:
 
 ```bash
 boltz predict ./example_output/Boltz/input_folder \
@@ -162,6 +157,8 @@ boltz predict ./example_output/Boltz/input_folder \
 ---
 
 ### 8. Run AF3
+
+Requires a separate [AF3] (https://github.com/google-deepmind/alphafold3) installation:
 
 ```bash
 python run_alphafold.py \
@@ -224,7 +221,6 @@ python ./scripts/compute_rosetta_metrics.py \
   --folder af2:./example_output/AF2/pdbs/ \
   --folder boltz1:./example_output/Boltz/pdbs/ \
   --folder colab:./example_output/ColabFold/pdbs/ \
-  --folder input:./example_output/input_pdbs/
 ```
 
 ---
@@ -236,7 +232,7 @@ python ./scripts/rmsd.py \
   --folder input:./example_output/input_pdbs/ \
   --folder af3:./example_output/AF3/pdbs/ \
   --folder af2:./example_output/AF2/pdbs/ \
-  --folder boltz1:./example_output/Boltz/pdbs/ \
+  --folder boltz:./example_output/Boltz/pdbs/ \
   --folder colab:./example_output/ColabFold/pdbs/ \
   --out-csv ./example_output/rmsd.csv
 ```
@@ -268,7 +264,11 @@ See **`example_run.sh`** for a complete pipeline example including environment l
 
 ---
 
+## Analyis 
 
+The `./analysis` folder contains all scripts and notebooks used to generate the analyses described in the paper, provided here for reproducibility. 
+
+---
 
 ## Citation
 
