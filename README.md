@@ -107,7 +107,7 @@ python ./scripts/generate_model_inputs.py \
 
 ---
 
-### 4. Relax input structures & compute Rosetta metrics
+### 4. Relax input structures & compute Rosetta metrics (inspired by the [Bindcraft](https://github.com/martinpacesa/BindCraft) repo)
 
 ```bash
 python ./scripts/compute_rosetta_metrics.py \
@@ -158,7 +158,7 @@ boltz predict ./example_output/Boltz/input_folder \
 
 ### 8. Run AF3
 
-Requires a separate [AF3] (https://github.com/google-deepmind/alphafold3) installation:
+Requires a separate [AF3](https://github.com/google-deepmind/alphafold3) installation:
 
 ```bash
 python run_alphafold.py \
@@ -211,7 +211,7 @@ python ./scripts/dockQ.py \
 
 ---
 
-### 12. Compute Rosetta metrics for model PDBs
+### 12. Compute Rosetta metrics for model PDBs (inspired by the [Bindcraft](https://github.com/martinpacesa/BindCraft) repo)
 
 ```bash
 python ./scripts/compute_rosetta_metrics.py \
