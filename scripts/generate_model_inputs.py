@@ -6,6 +6,7 @@ import glob
 import shutil
 import argparse
 from typing import Dict, List, Tuple
+from collections import Counter
 
 import pandas as pd
 
@@ -256,8 +257,12 @@ def write_af3_json(inpath: str, outpath: str):
       - binder as first sequence (binder_chain)
       - subsequent target subchains present in the CSV
       - MSA fields from msa_path_* if present, else empty fields.
+      - optional ions from "ions_in_structure" column appended into "sequences"
+        as objects of the form: {"ion": {"ion": "MG", "count": 2}}
     """
     df = _read_csv(inpath)
+
+    ALLOWED_IONS = {"MG", "ZN", "CL", "CA", "NA", "MN", "K", "FE", "CU", "CO"}
 
     for _, row in df.iterrows():
         binder_id = row["binder_id"]
@@ -292,17 +297,44 @@ def write_af3_json(inpath: str, outpath: str):
                 }
             })
 
+        # parse ions_in_structure column and append as ion entries into sequences
+        ions_raw = _safe_str(row.get("ions_in_target"))
+        if ions_raw:
+            try:
+                ions_list = json.loads(ions_raw) if isinstance(ions_raw, str) else []
+                if not isinstance(ions_list, list):
+                    raise ValueError("ions_in_structure is not a list")
+            except Exception:
+                print(f"[af3] {binder_id}: warning: could not parse ions_in_structure: {ions_raw!r}; ignoring.")
+                ions_list = []
+
+            if ions_list:
+                counts = Counter([str(x).upper().strip() for x in ions_list if x is not None])
+                used = []
+                for ion_name, cnt in counts.items():
+                    if ion_name in ALLOWED_IONS:
+                        sequences.append({"ion": {"ion": ion_name, "count": int(cnt)}})
+                        print(f"[af3] {binder_id}: using ion {ion_name} count={cnt}")
+                        used.append(ion_name)
+                    else:
+                        print(f"[af3] {binder_id}: warning: invalid/unsupported ion '{ion_name}' (ignored)")
+                if not used:
+                    # If we parsed ions but none were allowed, inform
+                    print(f"[af3] {binder_id}: no allowed ions found in ions_in_structure; none added.")
+
         # attach MSA hints
         for seq in sequences:
-            cid = seq["protein"]["id"]
-            msa_col = f"msa_path_{cid}"
-            msa_path = _safe_str(row.get(msa_col))
-            if (not msa_path) or (msa_path.lower() == "no_msa"):
-                seq["protein"]["unpairedMsa"] = ""
-                seq["protein"]["pairedMsa"] = ""
-            else:
-                seq["protein"]["unpairedMsaPath"] = msa_path
-                seq["protein"]["pairedMsa"] = ""
+            # ion entries don't have protein.id, handle accordingly
+            if "protein" in seq:
+                cid = seq["protein"]["id"]
+                msa_col = f"msa_path_{cid}"
+                msa_path = _safe_str(row.get(msa_col))
+                if (not msa_path) or (msa_path.lower() == "no_msa"):
+                    seq["protein"]["unpairedMsa"] = ""
+                    seq["protein"]["pairedMsa"] = ""
+                else:
+                    seq["protein"]["unpairedMsaPath"] = msa_path
+                    seq["protein"]["pairedMsa"] = ""
 
         json_data = {
             "name": binder_id,

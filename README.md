@@ -83,6 +83,12 @@ python ./scripts/process_inputs.py \
 
 * **Logging behavior**: overwritten sequences are stored in `pdb_extracted_trg_subch_{X}_not_used` to preserve original PDB info.
 
+#### Incorporating ions in target structure
+
+It is possible to specify ions in the target structure which will only be modelled by AF3.
+This is done by running the process inputs in the `hybrid` mode, and having a column called `ions_in_target` with the following syntax: `"[""CA""]"` or `"[""CA"",""CA"",""MG""]"` ect.
+
+
 ---
 
 ### 2. Generate MSAs
