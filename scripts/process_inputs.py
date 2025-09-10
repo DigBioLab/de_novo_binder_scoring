@@ -880,8 +880,21 @@ def main():
 
         run_csv = output_dir / "run.csv"
         df = pd.read_csv(input_csv)
+
+        # --- Check required columns ---
+        required_cols = {"binder_id", "target_id","A_seq"}
+        missing = required_cols - set(df.columns)
+        if missing:
+            print_info(f"ERROR: Missing required columns in input_csv: {', '.join(missing)}")
+            sys.exit(1)
+
+        # --- Sanitize binder_id and target_id ---
+        df["binder_id"] = df["binder_id"].astype(str).map(sanitize_stem)
+        df["target_id"] = df["target_id"].astype(str).map(sanitize_stem)
+
         df.to_csv(run_csv, index=False)
         print(f"[seq_only_csv] Wrote: {run_csv}")
+
 
     # Common tail: binder FASTA + unique MSA and set msa_path_* columns
     run_csv = output_dir / "run.csv"
