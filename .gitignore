@@ -7,3 +7,9 @@ camsol_intrinsic_linear.py
 example_run_with_good_paths.sh
 example_submission_w_camsol.sh
 example_outputs
+input_21_tested_design_r2
+example_submission_hpc_21_tested_design_r2.sh
+output_21_tested_designs_r2
+example_sub_af3only_hpc_pMCH_1.sh
+input_pMCH_1
+output_pMCH_1
