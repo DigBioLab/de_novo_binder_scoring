@@ -297,30 +297,39 @@ def write_af3_json(inpath: str, outpath: str):
                 }
             })
 
-        # parse ions_in_structure column and append as ion entries into sequences
+         # determine last chain ID used
+        all_chain_ids = [binder_chain] + [ch for ch in chains if ch != binder_chain]
+        last_chain = max(all_chain_ids) if all_chain_ids else "A"
+        start_ord = ord(last_chain) + 1
+
+        # parse ions_in_target and append as ligands
         ions_raw = _safe_str(row.get("ions_in_target"))
         if ions_raw:
             try:
                 ions_list = json.loads(ions_raw) if isinstance(ions_raw, str) else []
                 if not isinstance(ions_list, list):
-                    raise ValueError("ions_in_structure is not a list")
+                    raise ValueError("ions_in_target is not a list")
             except Exception:
-                print(f"[af3] {binder_id}: warning: could not parse ions_in_structure: {ions_raw!r}; ignoring.")
+                print(f"[af3] {binder_id}: warning: could not parse ions_in_target: {ions_raw!r}; ignoring.")
                 ions_list = []
 
             if ions_list:
                 counts = Counter([str(x).upper().strip() for x in ions_list if x is not None])
-                used = []
+                lig_id_ord = start_ord
                 for ion_name, cnt in counts.items():
                     if ion_name in ALLOWED_IONS:
-                        sequences.append({"ion": {"ion": ion_name, "count": int(cnt)}})
-                        print(f"[af3] {binder_id}: using ion {ion_name} count={cnt}")
-                        used.append(ion_name)
+                        for _ in range(cnt):
+                            lig_id = chr(lig_id_ord)
+                            lig_id_ord += 1
+                            sequences.append({
+                                "ligand": {
+                                    "id": lig_id,
+                                    "ccdCodes": [ion_name]
+                                }
+                            })
+                            print(f"[af3] {binder_id}: added ligand {ion_name} as ID {lig_id}")
                     else:
                         print(f"[af3] {binder_id}: warning: invalid/unsupported ion '{ion_name}' (ignored)")
-                if not used:
-                    # If we parsed ions but none were allowed, inform
-                    print(f"[af3] {binder_id}: no allowed ions found in ions_in_structure; none added.")
 
         # attach MSA hints
         for seq in sequences:
