@@ -459,6 +459,9 @@ def update_run_csv_hybrid(input_csv: Path, pdb_folder: Path, output_csv: Path, a
 
     for base_row in rows:
         binder_id = base_row.get("binder_id", "")
+        sanitized_id = sanitize_stem(binder_id)
+
+
         binder_chain = (base_row.get("binder_chain", "") or "A").strip().upper()
         user_target_id = str(base_row.get("target_id", "") or "")
         user_target_chains_raw = base_row.get("target_chains", "")
@@ -467,10 +470,13 @@ def update_run_csv_hybrid(input_csv: Path, pdb_folder: Path, output_csv: Path, a
         # Locate PDB: exact stem or sanitized stem
         pdb_path = exact_map.get(binder_id)
         if pdb_path is None:
-            pdb_path = after_sanitize_map.get(sanitize_stem(binder_id))
+            pdb_path = after_sanitize_map.get(sanitized_id)
 
         row_out = {}
         row_out.update(base_row)  # start with user row
+        # ensure binder_id is sanitized
+        row_out["binder_id"] = sanitized_id
+
 
         if pdb_path is None or not pdb_path.exists():
             # No PDB available: ensure A:no_msa in msa_info if missing, then keep user data
