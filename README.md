@@ -200,6 +200,11 @@ python ./scripts/run_ipsae_batch.py \
   --ipsae-script-path ./scripts/ipsae_w_ipae.py
 ```
 
+There is a possibility to extract specific chain pair ipSAE values:
+use the argument  
+ --specific-chainpair-ipsae "A:D,A:B,A:C" 
+which takes a string formated like the above.
+
 ---
 
 ### 11. Compute DockQ
