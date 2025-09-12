@@ -205,6 +205,9 @@ use the argument
  --specific-chainpair-ipsae "A:D,A:B,A:C" 
 which takes a string formated like the above.
 
+It is also possible to specify several thressholds for the AF3 contact prob metrics
+--confidence-threshold "0.5,0.6,0.7,0.8,0.9" \
+
 ---
 
 ### 11. Compute DockQ

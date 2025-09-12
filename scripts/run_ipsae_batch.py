@@ -61,6 +61,7 @@ def parse_args():
     p.add_argument("--verbose", action="store_true", help="Print more info while processing")
     p.add_argument("--out-csv", required=True, help="Path to write the calculated metrics CSV")
     p.add_argument("--specific-chainpair-ipsae", type=str, default=None, help="Comma-separated chain pairs (e.g. 'A:B,B:C') to extract specific ipSAE values")
+    p.add_argument("--confidence-threshold", type=str, default="0.6", help="Comma separated confidence thresholds for min/max PAE calculation (default: 0.6)")
 
     return p.parse_args()
 
@@ -358,7 +359,7 @@ def get_pDockQ_min_max(path, target_chain='A'):
     return {"pDockQ":  [avg_min_p1, avg_max_p1], "pDockQ2": [avg_min_p2, avg_max_p2]}
 
 
-def min_max_pae_for_chain_contacts(json_path, threshold, target_chain='A'):
+def min_max_pae_for_chain_contacts(json_path, threshold: float, target_chain='A'):
     with open(json_path) as f:
         data = json.load(f)
     chain_ids = data['token_chain_ids']
@@ -391,7 +392,8 @@ def process_binder(
     ipsae_script: str,
     overwrite: bool,
     verbose: bool,
-    specific_chainpair_ipsae: str = None
+    specific_chainpair_ipsae: str = None,
+    confidence_threshold: str = "0.6"
 ):
     results: Dict[str, float] = {}
     notes: List[str] = []
@@ -445,10 +447,14 @@ def process_binder(
                 notes.append(f"[{bid}-{src}] chainpair extraction failed: {e}")
 
         if src == 'af3':
-            rmin, rmax, count = min_max_pae_for_chain_contacts(conf, 0.60)
-            results[f"{prefix}_min_pae_contact"] = rmin
-            results[f"{prefix}_max_pae_contact"] = rmax
-            results[f"{prefix}_res_above_contact_thres"] = count
+            thresholds = [float(x) for x in args.confidence_threshold.split(",")]
+            # print(f"Confidence thresholds for min/max PAE calculation: {thresholds}")
+            for thres in thresholds:
+                # print(thres, type(thres))
+                rmin, rmax, count = min_max_pae_for_chain_contacts(conf, thres)
+                results[f"{prefix}_min_pae_contact_thres_{str(thres)}"] = rmin
+                results[f"{prefix}_max_pae_contact_thres_{str(thres)}"] = rmax
+                results[f"{prefix}_res_above_contact_thres_{str(thres)}"] = count
 
     return results, notes
 
@@ -493,7 +499,7 @@ def main():
 
     tasks = []
     for bid in binder_ids:
-        tasks.append((bid, index, args.pae_cutoff, args.dist_cutoff, args.ipsae_script_path, args.overwrite_ipsae, args.verbose,args.specific_chainpair_ipsae))
+        tasks.append((bid, index, args.pae_cutoff, args.dist_cutoff, args.ipsae_script_path, args.overwrite_ipsae, args.verbose,args.specific_chainpair_ipsae, args.confidence_threshold))
 
     with ProcessPoolExecutor(max_workers=args.max_workers) as pool:
         futures = {pool.submit(process_binder, *t): t[0] for t in tasks}
@@ -502,8 +508,9 @@ def main():
             try:
                 res, notes = fut.result()
             except Exception as e:
-                all_notes.append(f"[{bid}] worker failed: {e}")
                 res = {}
+                notes = []
+                notes.append(f"[{bid}] worker failed: {e}")
             collected[bid] = res
             all_notes.extend(notes)
 
