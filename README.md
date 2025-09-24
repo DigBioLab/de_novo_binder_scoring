@@ -278,6 +278,43 @@ cd $OUTPUT_DIR
 python -m pymol -c -d "run ../scripts/pymol_metrics.py"
 ```
 
+
+### 14. Merge All CSV Metrics
+
+This script will merge all the individual outputs into a merged csv:
+all of the scripts that generate csv outputs can alternatively take the flag `--update-runcsv` which will merge results directly into the main csv by the "binder_id," but this can be anoying if reruning the script
+
+```bash
+source "$CONDA_PATH"
+conda activate binder_scoring_env
+echo -e "\nMerging all metrics into merged_run.csv" >> "${LOG_DIR}/log.txt"
+
+START_TIME=$(date +%s)
+
+python ./scripts/merge_csvs.py \
+  --run-csv "${OUTPUT_DIR}/run.csv" \
+  --metric-csvs \
+      "${OUTPUT_DIR}/input_rosetta_metrics.csv" \
+      "${OUTPUT_DIR}/ipsae_and_ipae.csv" \
+      "${OUTPUT_DIR}/dockQ.csv" \
+      "${OUTPUT_DIR}/rosetta_metrics.csv" \
+      "${OUTPUT_DIR}/rmsd.csv" \
+      "${OUTPUT_DIR}/pymol_files/pymol_metrics_af3.csv" \
+      "${OUTPUT_DIR}/pymol_files/pymol_metrics_input.csv" \
+      "${OUTPUT_DIR}/pymol_files/pymol_metrics_boltz1.csv" \
+      "${OUTPUT_DIR}/pymol_files/pymol_metrics_colab.csv" \
+      "${OUTPUT_DIR}/pymol_files/pymol_metrics_af2.csv" \
+      "${OUTPUT_DIR}/AF2/AF2_metrics.csv" \
+      "${OUTPUT_DIR}/AF3/af3_metrics.csv" \
+      "${OUTPUT_DIR}/Boltz/boltz_metrics.csv" \
+      "${OUTPUT_DIR}/ColabFold/colab_metrics.csv" \
+  --out-dir "${OUTPUT_DIR}"
+
+END_TIME=$(date +%s)
+echo "CSV merging completed in $((END_TIME - START_TIME)) seconds" >> "${LOG_DIR}/log.txt"
+```
+
+
 ---
 
 ### Full workflow example
