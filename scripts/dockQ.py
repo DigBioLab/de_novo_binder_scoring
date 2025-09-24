@@ -93,6 +93,9 @@ def parse_args():
     ap.add_argument("--mapB", default="B", help="Map input chain B to this chain id in models")
     ap.add_argument("--backup", action="store_true", help="Write run.csv.bak before overwrite")
     ap.add_argument("--verbose", action="store_true", help="Print more info while processing")
+    ap.add_argument("--update-runcsv",action="store_true",help="If set, update the run.csv in-place. Default: only write per-model CSVs.")
+
+
     return ap.parse_args()
 
 def main():
@@ -110,7 +113,7 @@ def main():
         print(f"[ok] Standalone CSV written: {args.out_csv} ({len(res_df)} rows)")
 
     # Merge into run CSV if provided
-    if args.run_csv:
+    if args.run_csv and args.update_runcsv:
         run_csv_path = Path(args.run_csv)
         run_df = pd.read_csv(run_csv_path, dtype=str)
 

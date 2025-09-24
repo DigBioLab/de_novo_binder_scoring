@@ -407,6 +407,8 @@ def _parse_inputs(argv=None):
     ap.add_argument("--target-chain", default="B")
     ap.add_argument("--nprocs", type=int, default=mp.cpu_count())
     ap.add_argument("--dalphaball-path", default="./functions/DAlphaBall.gcc")
+    ap.add_argument("--update-runcsv",action="store_true",help="If set, update the run.csv in-place. Default: only write per-model CSVs.")
+
     args = ap.parse_args(argv)
 
     # Convert to dict mapping
@@ -423,7 +425,7 @@ def _relaxed_dir_for(args, pdb_dir, prefix, num_inputs):
         return os.path.join(args.relaxed_dir, prefix) if num_inputs > 1 else args.relaxed_dir
     return os.path.join(pdb_dir, "relaxed_pdbs")
 
-def _score_one_folder(pdb_dir, prefix, run_csv, relaxed_dir, binder_chain, target_chain, nprocs, dalphaball_path):
+def _score_one_folder(pdb_dir, prefix, run_csv, relaxed_dir, binder_chain, target_chain, nprocs, dalphaball_path, update_runcsv=False):
     pdb_files = sorted(glob.glob(os.path.join(pdb_dir, "*.pdb")))
     if not pdb_files:
         print(f"[warn] No PDBs found in {pdb_dir} (prefix={prefix}); skipping.")
@@ -446,8 +448,12 @@ def _score_one_folder(pdb_dir, prefix, run_csv, relaxed_dir, binder_chain, targe
             for bid, data in pool.starmap(process_one, tasks):
                 results[bid] = data
 
-    # Optionally merge into run.csv
-    merge_metrics_into_run(run_csv, results, prefix)
+        # Optionally merge into run.csv (only if --update-runcsv set)
+    if update_runcsv and run_csv:
+        merge_metrics_into_run(run_csv, results, prefix)
+    elif run_csv and not update_runcsv:
+        print(f"[info] Skipping merge into run.csv for prefix={prefix} (set --update-runcsv to enable)")
+
 
     # Return results for global CSV
     return results
@@ -497,6 +503,7 @@ def main():
             target_chain=args.target_chain,
             nprocs=args.nprocs,
             dalphaball_path=args.dalphaball_path,
+            update_runcsv=args.update_runcsv,
         )
         all_results_by_prefix[prefix] = res or {}
 
