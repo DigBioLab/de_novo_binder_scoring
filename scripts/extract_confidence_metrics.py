@@ -642,6 +642,7 @@ def parse_args():
     p.add_argument("--boltz_dir", default=None, help="Override Boltz base dir (default: <output_dir>/Boltz)")
     p.add_argument("--af3_dir", default=None, help="Override AF3 base dir (default: <output_dir>/AF3)")
     p.add_argument("--af2_dir", default=None, help="Override AF2 base dir (default: <output_dir>/AF2)")
+    p.add_argument("--update-runcsv", action="store_true", help="If set, update the run.csv in-place. Default: only write per-model CSVs.")
     return p.parse_args()
 
 def main():
@@ -662,14 +663,14 @@ def main():
     # COLABFOLD
     if "colab" in models:
         df_colab = extract_colab_metrics(args.run_csv, colab_dir)
-        if not df_colab.empty:
+        if not df_colab.empty and args.update_runcsv:
             _merge_into_run(args.run_csv, df_colab)
 
     # BOLTZ1
     if "boltz" in models:
         predictions_folder = os.path.join(boltz_dir, "boltz_results_input_folder")
         df_boltz = extract_boltz1_metrics(predictions_folder, boltz_dir)
-        if not df_boltz.empty:
+        if not df_boltz.empty and args.update_runcsv:
             _merge_into_run(args.run_csv, df_boltz)
 
     # AF3
@@ -677,13 +678,13 @@ def main():
         af3_outputs_root = os.path.join(af3_dir, "outputs")
         af3_pdbs_dir     = os.path.join(af3_dir, "pdbs")
         df_af3 = summarize_af3(af3_outputs_root, args.run_csv, af3_pdbs_dir)
-        if not df_af3.empty:
+        if not df_af3.empty and args.update_runcsv:
             _merge_into_run(args.run_csv, df_af3)
 
     # AF2
     if "af2" in models:
         df_af2 = extract_af2_metrics(af2_dir)
-        if not df_af2.empty:
+        if not df_af2.empty and args.update_runcsv:
             _merge_into_run(args.run_csv, df_af2)
 
     print("[done] all requested models processed.")

@@ -60,6 +60,11 @@ def parse_args():
     p.add_argument("--backup", action="store_true", help="Write run.csv.bak before overwrite")
     p.add_argument("--verbose", action="store_true", help="Print more info while processing")
     p.add_argument("--out-csv", required=True, help="Path to write the calculated metrics CSV")
+    p.add_argument("--specific-chainpair-ipsae", type=str, default=None, help="Comma-separated chain pairs (e.g. 'A:B,B:C') to extract specific ipSAE values")
+    p.add_argument("--confidence-threshold", type=str, default="0.6", help="Comma separated confidence thresholds for min/max PAE calculation (default: 0.6)")
+    p.add_argument("--update-runcsv",action="store_true",help="If set, update the input run CSV with metrics (default: off)"
+)
+
 
     return p.parse_args()
 
@@ -180,7 +185,6 @@ def calculate_ipsae(conf: str, struct: str, pae_cutoff: float, dist_cutoff: floa
         print("  - RUN:", " ".join(map(str, cmd)))
     subprocess.run(cmd, check=True)
 
-
 def get_ipsae_min_max(path: str, target_chain: str = 'A'):
     """
     Parse an ipsae_w_ipae.py TXT and aggregate metrics for the target_chain.
@@ -299,6 +303,71 @@ def get_ipsae_min_max(path: str, target_chain: str = 'A'):
 
     return avg_min, avg_max, avg_ipsae_avg, avg_lis, avg_ipsae_min, avg_d0chn, avg_d0dom, avg_ipae
 
+def get_chainpair_ipsae(path: str, specific_chainpair_ipsae: str):
+    """
+    Extract ipSAE values for specific chain pairs.
+    
+    Args:
+        path: Path to the .txt file.
+        specific_chainpair_ipsae: Comma-separated chain pairs, e.g. "A:B,B:C".
+    
+    Returns:
+        Dict with keys chn_X_Y_ipSAE_min and chn_X_Y_ipSAE_max.
+    """
+    # --- validate input ---
+    pairs = [p.strip() for p in specific_chainpair_ipsae.split(",") if p.strip()]
+    clean_pairs = set()
+    for p in pairs:
+        if ":" not in p:
+            raise ValueError(f"Invalid chainpair format '{p}', must be like 'A:B'")
+        c1, c2 = p.split(":")
+        if not (len(c1) == 1 and len(c2) == 1 and c1.isalpha() and c2.isalpha()):
+            raise ValueError(f"Invalid chain names in pair '{p}'")
+        if c1 == c2:
+            raise ValueError(f"Chain pair cannot be identical: '{p}'")
+        # store as sorted tuple to remove duplicates regardless of order
+        clean_pairs.add(tuple(sorted((c1.upper(), c2.upper()))))
+    
+    # --- read file ---
+    with open(path) as f:
+        lines = [l.strip() for l in f if l.strip() and not l.startswith("#")]
+    if not lines:
+        return {}
+    header = lines[0].split()
+    if "Chn1" not in header or "Chn2" not in header or "ipSAE" not in header:
+        raise ValueError(f"Missing required columns in {path}")
+    idx_c1 = header.index("Chn1")
+    idx_c2 = header.index("Chn2")
+    idx_ipsae = header.index("ipSAE")
+    
+    # build lookup for all ipSAE values
+    table = {}
+    for ln in lines[1:]:
+        parts = ln.split()
+        c1, c2 = parts[idx_c1], parts[idx_c2]
+        try:
+            ipsae_val = float(parts[idx_ipsae])
+        except ValueError:
+            continue
+        table.setdefault((c1, c2), []).append(ipsae_val)
+    
+    # --- extract requested pairs ---
+    result = {}
+    for c1, c2 in clean_pairs:
+        vals = []
+        if (c1, c2) in table:
+            vals.extend(table[(c1, c2)])
+        if (c2, c1) in table:
+            vals.extend(table[(c2, c1)])
+        
+        if vals:
+            result[f"chn_{c1}_{c2}_ipSAE_min"] = min(vals)
+            result[f"chn_{c1}_{c2}_ipSAE_max"] = max(vals)
+        else:
+            result[f"chn_{c1}_{c2}_ipSAE_min"] = None
+            result[f"chn_{c1}_{c2}_ipSAE_max"] = None
+    
+    return result
 
 def get_pDockQ_min_max(path, target_chain='A'):
     with open(path) as f:
@@ -474,9 +543,11 @@ def main():
     res_df.to_csv(args.out_csv, index=False)
     print(f"Written metrics to {args.out_csv} with {len(res_df)} rows and {len(res_df.columns)} columns")
 
-    merged_df = run_df.merge(res_df, on='binder_id', how='left')
-    merged_df.to_csv(run_csv_path, index=False)
-    print(f"Updated {run_csv_path} with {len(merged_df)} rows and {len(merged_df.columns)} columns")
+    # only update run_csv if requested
+    if args.update_runcsv:
+        merged_df = run_df.merge(res_df, on='binder_id', how='left')
+        merged_df.to_csv(run_csv_path, index=False)
+        print(f"Updated {run_csv_path} with {len(merged_df)} rows and {len(merged_df.columns)} columns")
 
 
     

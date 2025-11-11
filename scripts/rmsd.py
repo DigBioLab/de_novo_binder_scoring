@@ -111,6 +111,7 @@ def main():
     ap.add_argument("--bb-only", action="store_true", help="Backbone-only RMSD")
     ap.add_argument("--backup", action="store_true", help="Write run.csv.bak before overwrite")
     ap.add_argument("--verbose", action="store_true", help="Print more info while processing")
+    ap.add_argument("--update-runcsv",action="store_true",help="If set, update the run CSV (default: only write standalone out-csv)")
     args = ap.parse_args()
 
     pr.init('-ignore_unrecognized_res -ignore_zero_occupancy -mute all -corrections::beta_nov16 true')
@@ -183,8 +184,11 @@ def main():
     if args.verbose:
         print(f"Written RMSD metrics to {args.out_csv} with {len(rows)} rows and {len(headers)} columns")
 
-    # Merge into run CSV if provided
-    if args.run_csv:
+    
+    if args.run_csv and not args.update_runcsv and args.verbose:
+        print("Note: --run-csv provided but --update-runcsv not set, skipping merge")
+    # Merge into run CSV only if explicitly requested
+    if args.update_runcsv and args.run_csv:
         run_csv_path = Path(args.run_csv)
         run_df = pd.read_csv(run_csv_path, dtype=str)
         if "binder_id" not in run_df.columns:
