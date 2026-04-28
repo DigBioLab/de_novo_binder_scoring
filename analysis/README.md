@@ -54,6 +54,8 @@ This directory contains the notebooks and scripts required to reproduce the anal
 The following file should be placed in the `./data/` directory:
 
 - `all_affinity_data_with_predicted_metrics.csv`
+- `prepared_training_dataset.csv`
+- `ranked_features_with_top50_interactions.csv`
 
 ---
 
