@@ -43,7 +43,7 @@ This directory contains the notebooks and scripts required to reproduce the anal
   Per-design-method analysis evaluating performance and predicted metrics across different design pipelines and generation methods.
 
   **Inputs:**  
-  - original_data_a_bindcraft_a_boltzgen_prepared_column_names_updated.csv (on zenodo see below)
+  - original_data_a_bindcraft_a_boltzgen_prepared_column_names_updated.csv (This file is made using to script: make_updated_dataset_w_bindcraft_boltzgen_data.ipynb)
 
 ---
 
@@ -56,16 +56,9 @@ The following file should be placed in the `./data/` directory:
 - `all_affinity_data_with_predicted_metrics.csv`
 - `prepared_training_dataset.csv`
 - `ranked_features_with_top50_interactions.csv`
+- `bindcraft_predicted_and_experimental_data.csv`
+- `boltzgen_predicted_and_experimental_data.csv`
 
 ---
 
-### External dataset
 
-The extended dataset with bindcraft and boltzgen is available on Zenodo:
-
-- `original_data_a_bindcraft_a_boltzgen_prepared_column_names_updated.csv`  
-  Zenodo DOI / Record: https://zenodo.org/records/15722219
-
-Download the file and place it in the appropriate `./data/` directory before running the notebooks.
-
----
